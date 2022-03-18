@@ -1,2 +1,5 @@
 # develops-hometask
-111
+ссылка на мой vagrant образ
+
+https://app.vagrantup.com/ddd015/boxes/centos8
+

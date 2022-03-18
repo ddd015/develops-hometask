@@ -29,6 +29,7 @@ Vagrant.configure("2") do |config|
 	sudo ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
 	sudo ln -s /etc/httpd/sites-available/dynamic.conf /etc/httpd/sites-enabled/dynamic.conf
 	sudo systemctl restart httpd
+	sudo systemctl enable httpd
 
    SHELL
 
