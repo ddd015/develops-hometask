@@ -15,13 +15,14 @@ Vagrant.configure("2") do |config|
 #  config.vm.synced_folder ".", "/vagrant"
 
   config.vm.provision "shell", inline: <<-SHELL
-#        sudo setsebool -P httpd_unified 1
+#   sudo setsebool -P httpd_unified 1
 	sudo apt update
 	apt remove gnupg
 	apt install --reinstall gnupg2 -y
 	apt install -y dirmngr
 	sudo apt install -y lxc lxc-templates
 	sudo iptables-restore /vagrant/ip_rul
+    sudo echo "pre-up iptables-restore < /vagrant/ip_rul">>/etc/network/interfaces
 	sudo cp /vagrant/default.conf /etc/lxc/
 	sudo cp /vagrant/lxc-net /etc/default/
 	sudo systemctl restart lxc-net
@@ -45,7 +46,7 @@ Vagrant.configure("2") do |config|
 	sudo cp /vagrant/static.conf /var/lib/lxc/c1/rootfs/etc/httpd/sites-available/
 	sudo cp /vagrant/httpd.conf /var/lib/lxc/c1/rootfs/etc/httpd/conf/
 	sudo lxc-attach -n c1 -- ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
-	sudo lxc-attach -n c1 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
+#   sudo lxc-attach -n c1 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
 	sudo lxc-attach -n c1 -- systemctl restart httpd
 	echo "!!!***** READY *****!!!"
 
@@ -61,7 +62,7 @@ Vagrant.configure("2") do |config|
 	sudo lxc-attach -n c2 -- yum install php -y
 	sudo lxc-attach -n c2 -- yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
 	sudo lxc-attach -n c2 -- yum install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
-	sudo lxc-attach -n c2 -- install -y php php-cli php-common
+#	sudo lxc-attach -n c2 -- install -y php php-cli php-common
 	sudo lxc-attach -n c2 -- systemctl enable httpd
 	sudo lxc-attach -n c2 -- systemctl start httpd	
 	sudo lxc-attach -n c2 -- mkdir -p /var/www/dynamic/html
@@ -72,7 +73,7 @@ Vagrant.configure("2") do |config|
 	sudo cp /vagrant/dynamic.conf /var/lib/lxc/c2/rootfs/etc/httpd/sites-available/
 	sudo cp /vagrant/httpd1.conf /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf
 	sudo lxc-attach -n c2 -- ln -s /etc/httpd/sites-available/dynamic.conf /etc/httpd/sites-enabled/dynamic.conf
-	sudo lxc-attach -n c2 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
+#	sudo lxc-attach -n c2 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
 	sudo lxc-attach -n c2 -- systemctl restart httpd
 	echo "!!!***** COMPLETE *****!!!"
  SHELL
