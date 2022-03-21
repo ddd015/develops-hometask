@@ -33,18 +33,18 @@ Vagrant.configure("2") do |config|
 	sudo lxc-start -n c1
 	sudo sleep 20s
 	sudo lxc-attach -n c1 --export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-	sudo lxc-attach -n c1 yum update
-	lxc-attach -n c1 yum install httpd
-	lxc-attach -n c1 systemctl enable httpd
-	lxc-attach -n c1 systemctl start httpd
-	lxc-attach -n c1 mkdir -p /var/www/static/html
-	lxc-attach -n c1 chmod -R 0755 /var/www/static/html
+	sudo lxc-attach -n c1 --yum update
+	lxc-attach -n c1 --yum install httpd
+	lxc-attach -n c1 --systemctl enable httpd
+	lxc-attach -n c1 --systemctl start httpd
+	lxc-attach -n c1 --mkdir -p /var/www/static/html
+	lxc-attach -n c1 --chmod -R 0755 /var/www/static/html
 	cp /vagrant/index.html /var/lib/lxc/c1/rootfs/var/www/static/html
-	lxc-attach -n c1 mkdir /etc/httpd/sites-available
-	lxc-attach -n c1 mkdir /etc/httpd/sites-enabled
+	lxc-attach -n c1 --mkdir /etc/httpd/sites-available
+	lxc-attach -n c1 --mkdir /etc/httpd/sites-enabled
 	cp /vagrant/static.conf /var/lib/lxc/c1/rootfs/etc/httpd/sites-available/
-	lxc-attach -n c1 ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
-	lxc-attach -n c1 systemctl restart httpd
+	lxc-attach -n c1 --ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
+	lxc-attach -n c1 --systemctl restart httpd
 	echo "!!!!!!!   *****типа все закончено      *****!!!"
 =begin
 	sudo lxc-create -n centos2 -t download -- --dist centos --rease 8-Stream --arc amd64
