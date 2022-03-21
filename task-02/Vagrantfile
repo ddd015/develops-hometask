@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
 	sudo cp /vagrant/default.conf /etc/lxc/
 	sudo cp /vagrant/lxc-net /etc/default/
 	sudo systemctl restart lxc-net
-<< 'test'
+
 	sudo lxc-create -n c1 -t download -- --dist centos --release 8-Stream --arch amd64 --keyserver hkp://keyserver.ubuntu.com
 	sudo echo "lxc.net.0.ipv4.address = 10.0.3.10/24">>/var/lib/lxc/c1/config
 	sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/c1/config
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
 	sudo lxc-attach -n c1 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
 	sudo lxc-attach -n c1 -- systemctl restart httpd
 	echo "!!!***** READY *****!!!"
-test
+
 	sudo lxc-create -n c2 -t download -- --dist centos --release 8-Stream --arch amd64 --keyserver hkp://keyserver.ubuntu.com
 	sudo echo "lxc.net.0.ipv4.address = 10.0.3.11/24">>/var/lib/lxc/c2/config
 	sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/c2/config
@@ -59,6 +59,9 @@ test
 	sudo lxc-attach -n c2 -- yum install mc -y
 	sudo lxc-attach -n c2 -- yum install httpd -y
 	sudo lxc-attach -n c2 -- yum install php -y
+	sudo lxc-attach -n c2 -- yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+	sudo lxc-attach -n c2 -- yum install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+	sudo lxc-attach -n c2 -- install -y php php-cli php-common
 	sudo lxc-attach -n c2 -- systemctl enable httpd
 	sudo lxc-attach -n c2 -- systemctl start httpd	
 	sudo lxc-attach -n c2 -- mkdir -p /var/www/dynamic/html
