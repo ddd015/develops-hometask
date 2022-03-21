@@ -25,47 +25,53 @@ Vagrant.configure("2") do |config|
 	sudo cp /vagrant/default.conf /etc/lxc/
 	sudo cp /vagrant/lxc-net /etc/default/
 	sudo systemctl restart lxc-net
-
+<< 'test'
 	sudo lxc-create -n c1 -t download -- --dist centos --release 8-Stream --arch amd64 --keyserver hkp://keyserver.ubuntu.com
-#	sudo cp /vagrant/config1 /var/lib/lxc/c1/config
 	sudo echo "lxc.net.0.ipv4.address = 10.0.3.10/24">>/var/lib/lxc/c1/config
 	sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/c1/config
 	sudo lxc-start -n c1
 	sudo sleep 20s
-	sudo lxc-attach -n c1 --export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
-	sudo lxc-attach -n c1 --yum update
-	lxc-attach -n c1 --yum install httpd
-	lxc-attach -n c1 --systemctl enable httpd
-	lxc-attach -n c1 --systemctl start httpd
-	lxc-attach -n c1 --mkdir -p /var/www/static/html
-	lxc-attach -n c1 --chmod -R 0755 /var/www/static/html
-	cp /vagrant/index.html /var/lib/lxc/c1/rootfs/var/www/static/html
-	lxc-attach -n c1 --mkdir /etc/httpd/sites-available
-	lxc-attach -n c1 --mkdir /etc/httpd/sites-enabled
-	cp /vagrant/static.conf /var/lib/lxc/c1/rootfs/etc/httpd/sites-available/
-	lxc-attach -n c1 --ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
-	lxc-attach -n c1 --systemctl restart httpd
-	echo "!!!!!!!   *****типа все закончено      *****!!!"
-=begin
-	sudo lxc-create -n centos2 -t download -- --dist centos --rease 8-Stream --arc amd64
-	sudo cp /vagrant/config2 /var/lib/lxc/centos2/config
-	sudo lxc-start -n centos2
-	sudo sleep 5s
-	sudo lxc-attach -n centos2 yum update
-	sudo lxc-attach -n centos2 yum install httpd
-	sudo lxc-attach -n centos2 systemctl enable httpd
-	sudo lxc-attach -n centos2 systemctl start httpd
-	sudo lxc-attach -n centos2 mkdir -p /var/www/dynamic/html
-	sudo lxc-attach -n centos2 chmod -R 0755 /var/www/dynamic/html
-	sudo cp /vagrant/index.php /var/lib/lxc/centos2/rootfs/var/www/dymanic/html
-	sudo lxc-attach -n centos2 mkdir /etc/httpd/sites-available
-	sudo lxc-attach -n centos2 mkdir /etc/httpd/sites-enabled
-	sudo cp /vagrant/dynamic.conf /var/lib/lxc/centos2/rootfs/etc/httpd/sites-available/
-	sudo lxc-attach -n centos2 ln -s /etc/httpd/sites-available/dynamic.conf /etc/httpd/sites-enabled/dynamic.conf
-	sudo lxc-attach -n centos2 sudo chcon -R --type=httpd_sys_rw_content_t /var/www/dynamic/html
-	sudo cp /vagrant/httpd.conf /var/lib/lxc/centos2/rootfs/etc/httpd/conf/ #��������� ����
-	sudo lxc-attach -n centos2 systemctl restart httpd
-=end
+	sudo lxc-attach -n c1 -- export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+	sudo lxc-attach -n c1 -- yum update
+	sudo lxc-attach -n c1 -- yum install mc -y
+	sudo lxc-attach -n c1 -- yum install httpd -y
+	sudo lxc-attach -n c1 -- systemctl enable httpd
+	sudo lxc-attach -n c1 -- systemctl start httpd
+	sudo lxc-attach -n c1 -- mkdir -p /var/www/static/html
+	sudo lxc-attach -n c1 -- chmod -R 0755 /var/www/static/html
+	sudo cp /vagrant/index.html /var/lib/lxc/c1/rootfs/var/www/static/html
+	sudo lxc-attach -n c1 -- mkdir /etc/httpd/sites-available
+	sudo lxc-attach -n c1 -- mkdir /etc/httpd/sites-enabled
+	sudo cp /vagrant/static.conf /var/lib/lxc/c1/rootfs/etc/httpd/sites-available/
+	sudo cp /vagrant/httpd.conf /var/lib/lxc/c1/rootfs/etc/httpd/conf/
+	sudo lxc-attach -n c1 -- ln -s /etc/httpd/sites-available/static.conf /etc/httpd/sites-enabled/static.conf
+	sudo lxc-attach -n c1 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
+	sudo lxc-attach -n c1 -- systemctl restart httpd
+	echo "!!!***** READY *****!!!"
+test
+	sudo lxc-create -n c2 -t download -- --dist centos --release 8-Stream --arch amd64 --keyserver hkp://keyserver.ubuntu.com
+	sudo echo "lxc.net.0.ipv4.address = 10.0.3.11/24">>/var/lib/lxc/c2/config
+	sudo echo "lxc.net.0.ipv4.gateway = 10.0.3.1">>/var/lib/lxc/c2/config
+	sudo lxc-start -n c2
+	sudo sleep 20s
+	sudo lxc-attach -n c2 -- export PATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
+	sudo lxc-attach -n c2 -- yum update
+	sudo lxc-attach -n c2 -- yum install mc -y
+	sudo lxc-attach -n c2 -- yum install httpd -y
+	sudo lxc-attach -n c2 -- yum install php -y
+	sudo lxc-attach -n c2 -- systemctl enable httpd
+	sudo lxc-attach -n c2 -- systemctl start httpd	
+	sudo lxc-attach -n c2 -- mkdir -p /var/www/dynamic/html
+	sudo lxc-attach -n c2 -- chmod -R 0755 /var/www/dynamic/html
+	sudo cp /vagrant/index.php /var/lib/lxc/c2/rootfs/var/www/dynamic/html
+	sudo lxc-attach -n c2 -- mkdir /etc/httpd/sites-available
+	sudo lxc-attach -n c2 -- mkdir /etc/httpd/sites-enabled
+	sudo cp /vagrant/dynamic.conf /var/lib/lxc/c2/rootfs/etc/httpd/sites-available/
+	sudo cp /vagrant/httpd1.conf /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf
+	sudo lxc-attach -n c2 -- ln -s /etc/httpd/sites-available/dynamic.conf /etc/httpd/sites-enabled/dynamic.conf
+	sudo lxc-attach -n c2 -- chcon -R --type=httpd_sys_rw_content_t /var/www/
+	sudo lxc-attach -n c2 -- systemctl restart httpd
+	echo "!!!***** COMPLETE *****!!!"
  SHELL
   
 end
