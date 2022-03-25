@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ddd015/centos8"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 81, host: 8081
+
+  config.ssh.username = "vagrant"
+  config.ssh.password = "vagrant"
+  config.ssh.insert_key = false
+  config.vm.synced_folder ".", "/vagrant"
+  #test1.vm.provision "shell", inline: <<-SHELL
+  #   sudo cp /vagrant/hosts /etc/ansible
+  #  SHELL 
+  config.vm.define "test1" do |test1|
+   test1.vm.network "private_network", ip: "192.168.56.4"
+   test1.vm.provision "ansible_local" do |ansible|
+	 ansible.playbook = "/vagrant/playbook.yml"
+	 ansible.become = true
+  end
+  end
+
+end

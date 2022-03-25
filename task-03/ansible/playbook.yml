@@ -1,0 +1,60 @@
+---
+ - hosts: all
+   #connection: local
+   become: yes
+   tasks:
+      - name: "create folders on static"
+        file: 
+          path: /var/www/static/html
+          mode: 0755
+          state: directory
+      - name: "create folders on dynamic"
+        file:
+          path: /var/www/dynamic/html
+          mode: 0755
+          state: directory
+      - name: "Create folder s-a"
+        file: 
+          path: /etc/httpd/sites-available
+          state: directory
+      - name: "Create folder s-e"
+        file: 
+          path: /etc/httpd/sites-enabled
+          state: directory
+      - name: "Copy config static"
+        copy:
+          src: /vagrant/static.conf
+          dest: /etc/httpd/sites-available
+      - name: "Copy config dynamic"
+        copy:
+          src: /vagrant/dynamic.conf
+          dest: /etc/httpd/sites-available
+      - name: "copy config httpd"
+        copy:
+          src: /vagrant/httpd.conf
+          dest: /etc/httpd/conf/
+      - name: "copy index.html"
+        copy:
+          src: /vagrant/index.html
+          dest: /var/www/static/html
+      - name: "copy index.php"
+        copy:
+          src: /vagrant/index.php
+          dest: /var/www/dynamic/html
+      - name: "Execute command Selinux enable php"
+        shell: chcon -R --type=httpd_sys_rw_content_t /var/www/dynamic/html
+      - name: "Create a symbolic link on dynamic"
+        file:
+          src: /etc/httpd/sites-available/dynamic.conf
+          dest: /etc/httpd/sites-enabled/dynamic.conf
+          state: link
+      - name: "Create a symbolic link on static"
+        file:
+          src: /etc/httpd/sites-available/static.conf
+          dest: /etc/httpd/sites-enabled/static.conf
+          state: link
+      - name: "Restart httpd"    
+        shell: sudo systemctl restart httpd
+
+          
+       
