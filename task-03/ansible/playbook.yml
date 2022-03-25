@@ -29,10 +29,12 @@
         copy:
           src: /vagrant/dynamic.conf
           dest: /etc/httpd/sites-available
-      - name: "copy config httpd"
-        copy:
-          src: /vagrant/httpd.conf
-          dest: /etc/httpd/conf/
+      - name: "add info config httpd"
+        shell: "echo {{ item }} >> /etc/httpd/conf/httpd.conf"
+        loop:
+          - "Listen 81"
+          - "IncludeOptional sites-available/*.conf"
+        register: echo
       - name: "copy index.html"
         copy:
           src: /vagrant/index.html
@@ -41,8 +43,6 @@
         copy:
           src: /vagrant/index.php
           dest: /var/www/dynamic/html
-      - name: "Execute command Selinux enable php"
-        shell: chcon -R --type=httpd_sys_rw_content_t /var/www/dynamic/html
       - name: "Create a symbolic link on dynamic"
         file:
           src: /etc/httpd/sites-available/dynamic.conf
@@ -54,7 +54,9 @@
           dest: /etc/httpd/sites-enabled/static.conf
           state: link
       - name: "Restart httpd"    
-        shell: sudo systemctl restart httpd
-
+        service:
+          name: httpd
+          state: restarted
+          
           
        
