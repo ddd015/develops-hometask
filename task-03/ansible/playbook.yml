@@ -3,60 +3,33 @@
    #connection: local
    become: yes
    tasks:
-      - name: "create folders on static"
-        file: 
-          path: /var/www/static/html
-          mode: 0755
-          state: directory
-      - name: "create folders on dynamic"
+      - name: Create folder
         file:
-          path: /var/www/dynamic/html
-          mode: 0755
+          path: "{{ item.dir }}"
+          mode: "{{ item.prava }}"
           state: directory
-      - name: "Create folder s-a"
-        file: 
-          path: /etc/httpd/sites-available
-          state: directory
-      - name: "Create folder s-e"
-        file: 
-          path: /etc/httpd/sites-enabled
-          state: directory
-      - name: "Copy config static"
+        with_items:
+         - {dir: '/var/www/static/html', prava: '0755'}
+         - {dir: '/var/www/dynamic/html', prava: '0755'}
+      - name: Copy conf files     
         copy:
-          src: /vagrant/static.conf
-          dest: /etc/httpd/sites-available
-      - name: "Copy config dynamic"
+          src: "{{ item.cfg }}"
+          dest: /etc/httpd/conf.d/
+        with_items:
+         - {cfg: '/vagrant/stdyn.conf'}
+      - name: Copy html and php files
         copy:
-          src: /vagrant/dynamic.conf
-          dest: /etc/httpd/sites-available
+          src: "{{ item.f }}"
+          dest: "{{ item.d }}"
+        with_items:
+         - {f: '/vagrant/index.html', d: '/var/www/static/html'}
+         - {f: '/vagrant/index.php', d: '/var/www/dynamic/html'}
       - name: "add info config httpd"
         shell: "echo {{ item }} >> /etc/httpd/conf/httpd.conf"
         loop:
           - "Listen 81"
-          - "IncludeOptional sites-available/*.conf"
         register: echo
-      - name: "copy index.html"
-        copy:
-          src: /vagrant/index.html
-          dest: /var/www/static/html
-      - name: "copy index.php"
-        copy:
-          src: /vagrant/index.php
-          dest: /var/www/dynamic/html
-      - name: "Create a symbolic link on dynamic"
-        file:
-          src: /etc/httpd/sites-available/dynamic.conf
-          dest: /etc/httpd/sites-enabled/dynamic.conf
-          state: link
-      - name: "Create a symbolic link on static"
-        file:
-          src: /etc/httpd/sites-available/static.conf
-          dest: /etc/httpd/sites-enabled/static.conf
-          state: link
       - name: "Restart httpd"    
         service:
           name: httpd
           state: restarted
-          
-          
-       
