@@ -1,0 +1,139 @@
+---
+ - hosts: all
+   #connection: local
+   become: yes
+   tasks:
+      - name: Install lxc pckages and python3-lxc
+        apt:
+          pkg:
+          - mc
+          - python3-pip
+          - lxc
+          - lxc-dev
+          - lxc-templates
+          - python3-lxc
+          state: latest
+          update_cache: true
+      - name: Install ansible-galaxy collection install community.general
+        shell: ansible-galaxy collection install community.general
+      - name: add conf files for lxc net    
+        copy:
+          dest: /etc/default/lxc-net
+          content: |
+            USE_LXC_BRIDGE="true"
+            LXC_BRIDGE="lxcbr0"
+            LXC_ADDR="10.0.3.1"
+            LXC_NETMASK="255.255.255.0"
+            LXC_NETWORK="10.0.3.0/24"
+            LXC_DHCP_RANGE="10.0.3.100,10.0.3.254"
+            LXC_DHCP_MAX="253"
+            LXC_DHCP_CONFILE=""
+            LXC_DOMAIN=""
+      - name: add conf file  for lxc container
+        copy:
+          dest: /etc/lxc/default.conf
+          content: |
+            lxc.net.0.type = veth
+            lxc.net.0.link = lxcbr0
+            lxc.net.0.flags = up
+            lxc.apparmor.profile = unconfined
+            lxc.apparmor.allow_nesting = 1
+            lxc.start.auto = 1
+      - name: restart lxc
+        service:
+          name: lxc-net
+          state: started
+      - name: create container c1
+        lxc_container:
+          name: c1
+          container_log: true
+          template: download
+          template_options: --dist centos --release 8-Stream --arch amd64 --no-validate
+          state: started
+      - name: Install httpd in c1 
+        lxc_container:
+          name: c1
+          state: started
+          container_command: |
+            sleep 20
+            yum update
+            yum install httpd -y
+            systemctl enable httpd
+            systemctl start httpd
+      - name: Create folder in lxc c1
+        file:
+          path: "{{ item.dir }}"
+          mode: "{{ item.prava }}"
+          state: directory
+        with_items:
+         - {dir: '/var/lib/lxc/c1/rootfs/var/www/static/html', prava: '0755'}
+      - name: Copy conf files      
+        copy:
+          src: "{{ item.cfg }}"
+          dest: /var/lib/lxc/c1/rootfs/etc/httpd/conf.d/
+        with_items:
+         - {cfg: '/vagrant/static.conf'}
+      - name: Copy html files
+        copy:
+          src: "{{ item.f }}"
+          dest: "{{ item.d }}"
+        with_items:
+         - {f: '/vagrant/index.html', d: '/var/lib/lxc/c1/rootfs/var/www/static/html'}
+      - name: restart httpd on c1 
+        lxc_container:
+          name: c1
+          state: started
+          container_command: systemctl restart httpd
+      - name: create container 2
+        lxc_container:
+          name: c2
+          container_log: true
+          template: download
+          template_options: --dist centos --release 8-Stream --arch amd64 --no-validate
+          state: started
+      - name: Install httpd in c2
+        lxc_container:
+          name: c2
+          state: started
+          container_command: |
+            sleep 20
+            yum update
+            yum install httpd -y
+            systemctl enable httpd
+            systemctl start httpd
+            yum install php -y
+      - name: Create folder in lxc c2
+        file:
+          path: "{{ item.dir }}"
+          mode: "{{ item.prava }}"
+          state: directory
+        with_items:
+         - {dir: '/var/lib/lxc/c2/rootfs/var/www/dynamic/html', prava: '0755'}
+      - name: Copy conf files c2
+        copy:
+          src: "{{ item.cfg }}"
+          dest: /var/lib/lxc/c2/rootfs/etc/httpd/conf.d/
+        with_items:
+         - {cfg: '/vagrant/dynamic.conf'}
+      - name: Copy html and  files
+        copy:
+          src: "{{ item.f }}"
+          dest: "{{ item.d }}"
+        with_items:
+         - {f: '/vagrant/index.php', d: '/var/lib/lxc/c2/rootfs/var/www/dynamic/html'}
+      - name: "add info config httpd"
+        shell: "echo {{ item }} >> /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf"
+        loop:
+          - "Listen 81"
+        register: echo
+      - name: restart httpd on c2 
+        lxc_container:
+          name: c2
+          state: started
+          container_command: systemctl restart httpd
+      - name: add iptables
+        shell: |
+          ipc1=`sudo lxc-info -n c1 -iH`
+          ipc2=`sudo lxc-info -n c2 -iH`
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 80 -j DNAT --to-destination $ipc1:80
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 81 -j DNAT --to-destination $ipc2:81

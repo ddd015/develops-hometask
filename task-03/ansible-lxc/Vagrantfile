@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "ddd015/ubuntu2010"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 81, host: 8081
+
+  #config.ssh.username = "vagrant"
+  #config.ssh.password = "vagrant"
+  #config.ssh.insert_key = false
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.define "test2" do |test1|
+   test1.vm.network "private_network", ip: "192.168.56.4"
+   test1.vm.provision "shell", inline: <<-SHELL
+	echo "!!!!!!!!!!!!!"
+  sudo apt update
+  sudo apt install ansible -y
+  sudo ansible-playbook /vagrant/playbook.yml -i "127.0.0.1," -c local
+   SHELL
+  # test1.vm.provision "ansible_local" do |ansible|
+	# ansible.playbook = "/vagrant/playbook.yml"
+	# ansible.become = true
+  #end
+  end
+end
