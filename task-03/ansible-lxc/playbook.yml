@@ -39,10 +39,12 @@
             lxc.apparmor.profile = unconfined
             lxc.apparmor.allow_nesting = 1
             lxc.start.auto = 1
+#      - name: restart lxc
+#        service:
+#          name: lxc-net
+#          state: started
       - name: restart lxc
-        service:
-          name: lxc-net
-          state: started
+        shell: sudo systemctl restart lxc-net
       - name: create container c1
         lxc_container:
           name: c1
@@ -135,5 +137,5 @@
         shell: |
           ipc1=`sudo lxc-info -n c1 -iH`
           ipc2=`sudo lxc-info -n c2 -iH`
-          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 80 -j DNAT --to-destination $ipc1:80
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 82 -j DNAT --to-destination $ipc1:80
           sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 81 -j DNAT --to-destination $ipc2:81
