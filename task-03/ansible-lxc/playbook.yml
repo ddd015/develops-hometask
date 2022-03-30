@@ -39,12 +39,12 @@
             lxc.apparmor.profile = unconfined
             lxc.apparmor.allow_nesting = 1
             lxc.start.auto = 1
-#      - name: restart lxc
-#        service:
-#          name: lxc-net
-#          state: started
       - name: restart lxc
-        shell: sudo systemctl restart lxc-net
+        service:
+          name: lxc-net
+          state: started
+#      - name: restart lxc
+#        shell: sudo systemctl restart lxc-net
       - name: create container c1
         lxc_container:
           name: c1
