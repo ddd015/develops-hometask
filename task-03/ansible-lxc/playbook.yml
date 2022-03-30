@@ -137,5 +137,5 @@
         shell: |
           ipc1=`sudo lxc-info -n c1 -iH`
           ipc2=`sudo lxc-info -n c2 -iH`
-          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 82 -j DNAT --to-destination $ipc1:80
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 80 -j DNAT --to-destination $ipc1:80
           sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 81 -j DNAT --to-destination $ipc2:81
