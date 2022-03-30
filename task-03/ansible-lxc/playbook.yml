@@ -123,11 +123,16 @@
           dest: "{{ item.d }}"
         with_items:
          - {f: '/vagrant/index.php', d: '/var/lib/lxc/c2/rootfs/var/www/dynamic/html'}
-      - name: "add info config httpd"
-        shell: "echo {{ item }} >> /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf"
-        loop:
-          - "Listen 81"
-        register: echo
+#      - name: "add info config httpd"
+#        shell: "echo {{ item }} >> /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf"
+#        loop:
+#          - "Listen 81"
+#        register: echo
+      - name: add port 81 to config httpd c2
+        lineinfile:
+          path: /var/lib/lxc/c2/rootfs/etc/httpd/conf/httpd.conf
+          insertbefore: 'Listen 80'
+          line: Listen 81
       - name: restart httpd on c2 
         lxc_container:
           name: c2
