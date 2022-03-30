@@ -42,7 +42,7 @@
       - name: restart lxc
         service:
           name: lxc-net
-          state: started
+          state: restarted
 #      - name: restart lxc
 #        shell: sudo systemctl restart lxc-net
       - name: create container c1
