@@ -1,0 +1,147 @@
+---
+ - hosts: localhost
+   become: yes
+   tasks:
+      - name: Install lxc pckages and python3-lxc
+        apt:
+          pkg:
+          - mc
+          - python3-pip
+          - lxc
+          - lxc-dev
+          - lxc-templates
+          - python3-lxc 
+          state: latest
+          update_cache: true
+      - name: SSH remove question for ssh connect 
+        lineinfile:
+          path: /etc/ssh/sshd_config
+          insertbefore: 'EOF'
+          line: StrictHostKeyChecking no
+      - name: Restart SSH
+        service:
+          name: sshd
+          state: restarted
+      - name: Install ansible-galaxy collection 
+        shell: |
+          sudo ansible-galaxy collection install community.general
+          sudo ansible-galaxy collection install community.mysql
+          sudo ansible-galaxy collection install community.crypto
+
+      - name: add conf files for lxc net    
+        copy:
+          dest: /etc/default/lxc-net
+          content: |
+            USE_LXC_BRIDGE="true"
+            LXC_BRIDGE="lxcbr0"
+            LXC_ADDR="10.0.3.1"
+            LXC_NETMASK="255.255.255.0"
+            LXC_NETWORK="10.0.3.0/24"
+            LXC_DHCP_RANGE="10.0.3.100,10.0.3.254"
+            LXC_DHCP_MAX="253"
+            LXC_DHCP_CONFILE="/vagrant/iplxc.conf"
+            LXC_DOMAIN=""
+      - name: add conf file  for lxc container
+        copy:
+          dest: /etc/lxc/default.conf
+          content: |
+            lxc.net.0.type = veth
+            lxc.net.0.link = lxcbr0
+            lxc.net.0.flags = up
+            lxc.apparmor.profile = unconfined
+            lxc.apparmor.allow_nesting = 1
+            lxc.start.auto = 1
+      - name: Restart lxc
+        shell: sudo systemctl restart lxc-net
+      - name: create container c1
+        lxc_container:
+          name: c1
+          container_log: true
+          template: download
+          template_options: --dist ubuntu --release focal --arch amd64 --no-validate
+          state: stopped
+          clone_name: c2
+      - name: Start c1
+        lxc_container:
+          name: c1
+          state: started
+          container_command: |
+            sleep 20
+            apt update
+            apt install openssh-server -y            
+            systemctl enable sshd
+            systemctl restart sshd
+            mkdir /root/.ssh/
+      - name: Start c2
+        lxc_container:
+          name: c2
+          state: started
+          container_command: |
+            sleep 20
+            apt update
+            apt install openssh-server -y
+            systemctl enable sshd
+            systemctl restart sshd
+            mkdir /root/.ssh/
+      - name: Create ssh key
+        openssh_keypair:
+          path: /vagrant/id_ssh_rsa
+      - name: Copy ssh public key
+        copy:
+          src: /vagrant/id_ssh_rsa/id_rsa.pub
+          dest: "{{ item }}"
+        loop:
+         - /var/lib/lxc/c1/rootfs/root/.ssh/authorized_keys
+         - /var/lib/lxc/c2/rootfs/root/.ssh/authorized_keys
+      - name: add iptables
+        shell: |
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 3306 -j DNAT --to-destination 10.0.3.10:3306
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 22 -j DNAT --to-destination 10.0.3.10:22
+          sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 22 -j DNAT --to-destination 10.0.3.11:22
+
+ - hosts: db
+   become: yes
+   vars:
+    db_name: drupal
+    db_user: drupal
+    db_password: drupal
+   tasks:
+      - name: Install MySQL
+        apt:
+          pkg:
+          - mysql-server
+          - python3-pymysql
+          state: latest
+      - name: Create db
+        mysql_db:
+          name: "{{ db_name }}"
+          state: present
+      - name: Create user
+        mysql_user:
+          name: "{{ db_user }}"
+          password: "{{ db_password }}"
+          priv: '*.*:ALL'
+          state: present
+      - name: configure mysql db to bind to all addresses
+        lineinfile:
+          path: /etc/mysql/my.cnf
+          regexp: ^bind-address
+          line: bind-address = 0.0.0.0
+          state: present
+      - name: Restart MySQL
+        service:
+          name: mysql
+          state: restarted
+
+    
+          
+      
+   
+
+
+
+      
+      
+
+     
+      
