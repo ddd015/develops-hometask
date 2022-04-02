@@ -106,6 +106,7 @@
       - name: Create ssh key
         openssh_keypair:
           path: /vagrant/id_ssh_rsa
+          force: true
       - name: Copy ssh public key
         copy:
           src: /vagrant/id_ssh_rsa.pub
@@ -144,7 +145,7 @@
           state: present
       - name: configure mysql db to bind to all addresses
         lineinfile:
-          path: /etc/mysql/my.cnf
+          path: /etc/mysql/mysql.cnf
           regexp: ^bind-address
           line: bind-address = 0.0.0.0
           state: present
