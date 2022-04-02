@@ -60,7 +60,13 @@
           template: download
           template_options: --dist ubuntu --release focal --arch amd64 --no-validate
           state: stopped
-          clone_name: c2
+      - name: create container c2
+        lxc_container:
+          name: c2
+          container_log: true
+          template: download
+          template_options: --dist ubuntu --release focal --arch amd64 --no-validate
+          state: stopped
       - name: Start c1
         lxc_container:
           name: c1
@@ -81,6 +87,11 @@
             apt install openssh-server -y
             mkdir /root/.ssh/
             touch /root/.ssh/authorized_keys
+            apt install software-properties-common -y
+      - name: Add repository for PHP 8.0
+        apt_repository:
+          repo: "ppa:ondrej/php"
+          state: present
       - name: SSH PermitRootLogin on c1
         lineinfile:
           path: /var/lib/lxc/c1/rootfs/etc/ssh/sshd_config
@@ -174,10 +185,77 @@
         service:
           name: mysql
           state: restarted
+ - hosts: web
+   become: yes
+   tasks:
+      - name: Install Apache
+        apt:
+          name: ['apache2','curl','php8.0','php8.0-cli','php8.0-gd','php8.0-fpm','php8.0-mysql','php8.0-opcache','php8.0-mbstring','php8.0-intl','php8.0-xml','php8.0-zip','php8.0-curl','libapache2-mod-php8.0','libapache2-mod-fcgid','php8.0-pdo-sqlite','php8.0-simplexml']
+          state: latest
+          update_cache: yes
+      - name: Dowload Drupal
+        get_url:
+         url: https://ftp.drupal.org/files/projects/drupal-9.3.9.zip
+         dest: /tmp/
+      - name: Create directory drupal
+        file:
+          path: /var/www/html/drupal
+          state: directory
+      - name: Extract drupal
+        unarchive:
+          src: /tmp/drupal-9.3.9.zip
+          dest: /var/www/html/drupal
+      - name: Change owner
+        file:
+          path: /var/www/html/
+          owner: www-data
+          group: www-data
+          mode: '0755'
+          recurse: yes
+      - name: Config for apache
+        copy:
+          src: /vagrant/drupal.conf
+          dest: /etc/apache2/sites-available/
+      - name: Enable Apache rewrite module (required for Drupal)
+        apache2_module:
+          name: rewrite
+          state: present
+          force: yes
+      - name: Symlink Drupal
+        file:
+          src: /etc/apache2/sites-available/drupal.conf
+          dest: /etc/apache2/sites-enabled/drupal.conf
+          state: link
+      - name: Remove default site
+        file:
+          path: /etc/apache2/sites-enabled/000-default.conf
+          state: absent
+      - name: Copy settings.php
+        copy:
+          src: /vagrant/settings.php
+          dest: /var/www/html/drupal/drupal-9.3.9/sites/default/settings.php
+      - name: Create settings.php
+        copy:
+          src: /vagrant/php.ini
+          dest: /etc/php/8.0/apache2/php.ini
+#      - name: Enable mbstring.so
+#        lineinfile:
+#          path: /etc/php/8.0/apache2/php.ini
+#          regexp: '^;extension=mbstring'
+#          insertbefore: '^extension=mbstring'
+#          line: extension=mbstring.so
+#      - name: Enable mbstring.so
+#        lineinfile:
+#          path: /var/www/html/drupal/drupal-9.3.9/sites/default/settings.php
+#          regexp: '^$databeses = []'
+#          insertbefore: '^$databeses = []'
+#          line: "#$databases['default']['default'] = [\n#'database' => 'drupal',\n#'username' => 'drupal',\n#'password' => 'drupal',\n#'host' => '10.0.3.10',\n#'port' => '3306',\n#'driver' => 'mysql',\n#'prefix' => '',\n#'collation' => 'utf8_general_ci',\n#];\n"
+      - name: Restart apache
+        service:
+          name: apache2
+          state: restarted
 
-    
-          
-      
+
    
 
 
