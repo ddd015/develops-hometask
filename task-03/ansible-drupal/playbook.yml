@@ -105,11 +105,11 @@
           container_command: systemctl restart sshd  
       - name: Create ssh key
         openssh_keypair:
-          path: /vagrant/id_ssh_rsa
+          path: /home/vagrant/.ssh/id_ssh_rsa
           force: true
       - name: Copy ssh public key
         copy:
-          src: /vagrant/id_ssh_rsa.pub
+          src: /home/vagrant/.ssh/id_ssh_rsa.pub
           dest: "{{ item }}"
         loop:
          - /var/lib/lxc/c1/rootfs/root/.ssh/authorized_keys
@@ -133,19 +133,40 @@
           - mysql-server
           - python3-pymysql
           state: latest
+      - name: update mysql root password for all root accounts  
+        mysql_user: 
+          login_unix_socket: /var/run/mysqld/mysqld.sock 
+          name: root  
+          host: "{{ item }}"  
+          password: "{{ db_password }}"  
+          login_user: root  
+          login_password: "{{ db_password }}"  
+          check_implicit_admin: yes  
+          priv: "*.*:ALL,GRANT"  
+          host_all: yes
+        with_items:  
+        - "{{ ansible_hostname }}"  
+        - 127.0.0.1  
+        - ::1  
+        - localhost
       - name: Create db
         mysql_db:
+          login_unix_socket: /var/run/mysqld/mysqld.sock
           name: "{{ db_name }}"
           state: present
+          login_user: root
+          login_password: "{{ db_password }}"
       - name: Create user
         mysql_user:
           name: "{{ db_user }}"
           password: "{{ db_password }}"
           priv: '*.*:ALL'
           state: present
+          login_user: root
+          login_password: "{{ db_password }}"
       - name: configure mysql db to bind to all addresses
         lineinfile:
-          path: /etc/mysql/mysql.cnf
+          path: /etc/mysql/conf.d/mysql.cnf
           regexp: ^bind-address
           line: bind-address = 0.0.0.0
           state: present
