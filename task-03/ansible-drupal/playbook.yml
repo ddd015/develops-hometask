@@ -124,6 +124,15 @@
         loop:
          - /var/lib/lxc/c1/rootfs/root/.ssh/authorized_keys
          - /var/lib/lxc/c2/rootfs/root/.ssh/authorized_keys
+      - name: Copy conf files
+        copy:
+          src: "{{ item.cfg }}"
+          dest: "{{ item.dir }}"
+          remote_src: yes
+        with_items:
+          - {cfg: '/vagrant/settings.php', dir: '/var/lib/lxc/c2/rootfs/vagrant/'}
+          - {cfg: '/vagrant/php.ini', dir: '/var/lib/lxc/c2/rootfs/vagrant/'}
+          - {cfg: '/vagrant/drupal.conf', dir: '/var/lib/lxc/c2/rootfs/vagrant/'}
       - name: add iptables
         shell: |
           sudo iptables -t nat -A PREROUTING -p tcp -i enp0s3 --dport 3306 -j DNAT --to-destination 10.0.3.10:3306
@@ -143,40 +152,44 @@
           - mysql-server
           - python3-pymysql
           state: latest
-      - name: update mysql root password for all root accounts  
-        mysql_user: 
-          login_unix_socket: /var/run/mysqld/mysqld.sock 
-          name: root  
-          host: "{{ item }}"  
-          password: "{{ db_password }}"  
-          login_user: root  
-          login_password: "{{ db_password }}"  
-          check_implicit_admin: yes  
-          priv: "*.*:ALL,GRANT"  
-          host_all: yes
-        with_items:  
-        - "{{ ansible_hostname }}"  
-        - 127.0.0.1  
-        - ::1  
-        - localhost
+#      - name: update mysql root password for all root accounts  
+#        mysql_user: 
+#          login_unix_socket: /var/run/mysqld/mysqld.sock 
+#          name: drupal  
+#          host: 10.0.3.11  
+#          password: drupal  
+#          login_user: drupal  
+#          login_password: drupal
+#          check_implicit_admin: yes  
+#          priv: "*.*:ALL,GRANT"  
+#          host_all: yes
+#        with_items:  
+#        - "{{ ansible_hostname }}"  
+#        - 127.0.0.1  
+#        - ::1  
+#        - localhost
+#        - 10.0.3.10
+#        - 10.0.3.11
+#        - 0.0.0.0
       - name: Create db
         mysql_db:
           login_unix_socket: /var/run/mysqld/mysqld.sock
           name: "{{ db_name }}"
           state: present
-          login_user: root
+          login_user: "{{ db_user }}"
           login_password: "{{ db_password }}"
       - name: Create user
         mysql_user:
+          login_unix_socket: /var/run/mysqld/mysqld.sock
           name: "{{ db_user }}"
           password: "{{ db_password }}"
           priv: '*.*:ALL'
           state: present
-          login_user: root
+          login_user: "{{ db_name }}"
           login_password: "{{ db_password }}"
       - name: configure mysql db to bind to all addresses
         lineinfile:
-          path: /etc/mysql/conf.d/mysql.cnf
+          path: /etc/mysql/mysql.conf.d/mysqld.cnf
           regexp: ^bind-address
           line: bind-address = 0.0.0.0
           state: present
@@ -209,17 +222,15 @@
           src: /tmp/drupal-9.3.9.zip
           dest: /var/www/html/drupal
           remote_src: yes
-      - name: Change owner
-        file:
-          path: /var/www/html/
-          owner: www-data
-          group: www-data
-          mode: '0755'
-          recurse: yes
-      - name: Config for apache
+      - name: Copy conf files
         copy:
-          src: /vagrant/drupal.conf
-          dest: /etc/apache2/sites-available/
+          src: "{{ item.cfg }}"
+          dest: "{{ item.dir }}"
+          remote_src: yes
+        with_items:
+#          - {cfg: '/vagrant/settings.php', dir: '/var/www/html/drupal/drupal-9.3.9/sites/default/'}
+#          - {cfg: '/vagrant/php.ini', dir: '/etc/php/8.0/apache2/'}
+          - {cfg: '/vagrant/drupal.conf', dir: '/etc/apache2/sites-available/'}
       - name: Enable Apache rewrite module (required for Drupal)
         apache2_module:
           name: rewrite
@@ -234,16 +245,13 @@
         file:
           path: /etc/apache2/sites-enabled/000-default.conf
           state: absent
-      - name: Copy settings.php
-        copy:
-          src: /vagrant/settings.php
-          dest: /var/www/html/drupal/drupal-9.3.9/sites/default/settings.php
-          remote_src: yes
-      - name: Create settings.php
-        copy:
-          src: /vagrant/php.ini
-          dest: /etc/php/8.0/apache2/php.ini
-          remote_src: yes
+      - name: Change owner
+        file:
+          path: /var/www/html/
+          owner: www-data
+          group: www-data
+          mode: '0755'
+          recurse: yes
 #      - name: Enable mbstring.so
 #        lineinfile:
 #          path: /etc/php/8.0/apache2/php.ini

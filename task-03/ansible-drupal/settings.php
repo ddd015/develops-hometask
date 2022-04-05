@@ -88,6 +88,7 @@
  * ];
  * @endcode
  */
+@code
   $databases['default']['default'] = [
        'database' => 'drupal',
        'username' => 'drupal',
@@ -97,7 +98,8 @@
        'driver' => 'mysql',
        'prefix' => '',
        'collation' => 'utf8_general_ci',
-     ];
+   ];
+   @endcode
 
 /**
  * Customizing database settings.
