@@ -771,7 +771,7 @@ $settings['migrate_node_migrate_type_classic'] = FALSE;
 # }
 $databases['default']['default'] = array (
   'database' => 'drupal',
-  'username' => 'root',
+  'username' => 'drupal',
   'password' => 'drupal',
   'prefix' => '',
   'host' => '10.0.3.10',
