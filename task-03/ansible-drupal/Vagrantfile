@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.box = "ddd015/ubuntu2010"
 
-  config.vm.network "forwarded_port", guest: 80, host: 50150
+  config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 81, host: 8081
 
   #config.ssh.username = "vagrant"
