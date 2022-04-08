@@ -1,8 +1,12 @@
 localhost ansible_connection=local
 [master]
-master.puppet ansible_host=192.168.56.5 ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
+master.local ansible_host=192.168.56.5 #ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
 [slave]
-slave1.puppet ansible_host=192.168.56.6 ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
-slave2.puppet ansible_host=192.168.56.7 ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
+slave1.local ansible_host=192.168.56.6 #ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
+slave2.local ansible_host=192.168.56.7 #ansible_user=root ansible_ssh_private_key_file=/home/vagrant/.ssh/id_ssh_rsa
 [all:vars]
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+ansible_connection=ssh
+ansible_user=vagrant
+ansible_password=vagrant
+dnssuf=.local
