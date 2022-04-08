@@ -13,11 +13,9 @@
            {{ item.ip }} {{ item.name }}
          marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.name }}"
        loop:
-         - { name: master.local, ip: 192.168.56.5 }
-         - { name: slave1.local, ip: 192.168.56.6 }
-         - { name: slave2.local, ip: 192.168.56.7 } 
-     - name: update cashe
-       shell: sudo yum update -y
+         - { name: master, ip: 192.168.56.5 }
+         - { name: slave1, ip: 192.168.56.6 }
+         - { name: slave2, ip: 192.168.56.7 } 
      - name: Stop firewall
        service:
          name: firewalld
@@ -25,23 +23,22 @@
  - hosts: master
    become: true
    tasks:
-     - name: Install puppetserver
+     - name: Install puppetserver and update
        yum:
-         name: puppetserver
-         state: present 
+         name:
+           - puppetserver
+           - git 
+         state: latest
+         update_cache: true 
      - name: Install r10k
        shell: /opt/puppetlabs/puppet/bin/gem install r10k
-     - name: Install git
-       yum:
-         name: git
-         state: latest
      - name: Set r10k directory config
        file:
          path: /etc/puppetlabs/r10k
          state: directory
      - name: file r10k.yaml
        file:
-         path: //etc/puppetlabs/r10k/r10k.yaml
+         path: /etc/puppetlabs/r10k/r10k.yaml
          state: touch
      - name: Set config r10k
        copy: 
@@ -55,13 +52,16 @@
      - name: Set puppet server conf
        ini_file:
          path: /etc/puppetlabs/puppet/puppet.conf
-         section: agent
+         section: "{{ item.sect }}"
          option: "{{ item.option }}"
          value: "{{ item.value }}"
        with_items:
-        - { option: "server", value: "master.local" }
-        - { option: "certname", value: "master.local" }
-        - { option: "environment", value: "production" }
+        - { sect: "main", option: "server", value: "master" }
+        - { sect: "main", option: "certname", value: "master" }
+        - { sect: "main", option: "environment", value: "production" }
+        - { sect: "master", option: "dns_alt_names", value: "master" }
+        - { sect: "server", option: "autosign", value: "true" }
+        - { sect: "server", option: "server", value: "master" }
      - name: Config puppetserver memory 
        lineinfile:
          path: /etc/sysconfig/puppetserver
@@ -69,18 +69,6 @@
          insertbefore: '^JAVA_ARGS='
          line: 'JAVA_ARGS="-Xms256m -Xmx256m -Djrubby.logger.class-com.pupetlabs.jruby_utils.jruby.Slf4jLogger"'
          state: present
-     - name: Set puppet master autosign
-       ini_file:
-         path: /etc/puppetlabs/puppet/puppet.conf
-         section: server
-         option: "autosign"
-         value: "true"
-     - name: Set puppet master server
-       ini_file:
-         path: /etc/puppetlabs/puppet/puppet.conf
-         section: server
-         option: "server"
-         value: "master.local"
      - name: Start puppetserver
        service:
          name: puppetserver
@@ -105,7 +93,7 @@
          option: "{{ item.option }}"
          value: "{{ item.value }}"
        with_items:
-        - { option: "server", value: "master.local" }
+        - { option: "server", value: "master" }
         - { option: "runinterval", value: "1m" }
      - name: Enable puppeе service
        service:
@@ -132,7 +120,7 @@
          option: "{{ item.option }}"
          value: "{{ item.value }}"
        with_items:
-         - { option: "server", value: "master.local" }
+         - { option: "server", value: "master" }
          - { option: "runinterval", value: "1m" }
      - name: Enable pupper service
        service:
