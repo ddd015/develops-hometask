@@ -47,7 +47,7 @@
            :cashedir: '/var/cache/r10k'
            :sources:
              :my-org:
-               remote: 'git@github.com:ddd015/puppet.git'
+               remote: 'https://github.com/ddd015/puppet.git'
                basedir: '/etc/puppetlabs/code/environments'
      - name: Set puppet server conf
        ini_file:
