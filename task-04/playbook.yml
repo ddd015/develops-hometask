@@ -102,6 +102,11 @@
          minute: "*/2"
          user: root
          job: "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
+     - name: Enable puppeе service agent
+       service:
+         name: puppet
+         state: started
+         enabled: true
  - hosts: slave1
    become: true
    tasks:
