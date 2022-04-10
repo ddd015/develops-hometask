@@ -73,6 +73,8 @@
         - { sect: "master", option: "dns_alt_names", value: "master" }
         - { sect: "server", option: "autosign", value: "true" }
         - { sect: "server", option: "server", value: "master" }
+        - { sect: "agent", option: "server", value: "master" }
+        - { sect: "agent", option: "runinterval", value: "1m" }
      - name: Config puppetserver memory 
        lineinfile:
          path: /etc/sysconfig/puppetserver
@@ -89,6 +91,11 @@
        service:
          name: puppetserver
          state: restarted
+     - name: Stop httpd and disable autorun
+       service:
+         name: httpd
+         state: stopped
+         enabled: no
      - name: Creates a cron file under /etc/cron.d
        cron:
          name: r01k autoupdate
