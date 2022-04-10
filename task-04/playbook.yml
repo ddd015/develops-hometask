@@ -2,6 +2,17 @@
  - hosts: all
    become: true
    tasks:
+#     - name: Install puppetserver and update
+#       yum:
+#         name:
+#           - build-essential
+#           - python-selinux 
+#           - mc
+#         state: latest
+#         update_cache: true 
+     - name: Off SeLinux
+       selinux:
+         state: disabled 
      - name: Add Puppet repo
        yum:
          name: https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
