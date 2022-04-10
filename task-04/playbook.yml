@@ -89,6 +89,12 @@
        service:
          name: puppetserver
          state: restarted
+     - name: Creates a cron file under /etc/cron.d
+       cron:
+         name: r01k autoupdate
+         minute: "*/2"
+         user: root
+         job: "/opt/puppetlabs/puppet/bin/r10k deploy environment -p"
  - hosts: slave1
    become: true
    tasks:
