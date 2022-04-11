@@ -38,11 +38,11 @@ Vagrant.configure("2") do |config|
    SHELL
   end
 
-  config.vm.define "minecraft" do |minecraft|
-    minecraft.vm.network "private_network", ip: "192.168.56.8"
-    minecraft.vm.hostname = "minecraft"
-    minecraft.vm.provider("virtualbox") { |vb| vb.memory = 2048 }
-    minecraft.vm.provision :shell, inline: <<-SHELL
+  config.vm.define "mcserv" do |mcserv|
+    mcserv.vm.network "private_network", ip: "192.168.56.8"
+    mcserv.vm.hostname = "mcserv"
+    mcserv.vm.provider("virtualbox") { |vb| vb.memory = 2048 }
+    mcserv.vm.provision :shell, inline: <<-SHELL
     sudo yum update
     sudo yum install ansible -y
       #yum install -y https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
