@@ -108,7 +108,7 @@
          name: puppet
          state: started
          enabled: true
- - hosts: slave1
+ - hosts: slave
    become: true
    tasks:
      - name: Install puppet agent
@@ -126,60 +126,6 @@
         - { option: "server", value: "master" }
         - { option: "runinterval", value: "1m" }
      - name: Enable puppeе service
-       service:
-         name: puppet
-         state: started
-         enabled: true
-     - name: restart puppet
-       become: true
-       service:
-         name: puppet
-         state: restarted
- - hosts: slave2
-   become: true
-   tasks:
-     - name: Install puppet agent
-       yum:
-         pkg: puppet-agent
-         state: present
-         update_cache: yes
-     - name: Set puppet agent conf
-       ini_file:
-         path: /etc/puppetlabs/puppet/puppet.conf
-         section: agent
-         option: "{{ item.option }}"
-         value: "{{ item.value }}"
-       with_items:
-         - { option: "server", value: "master" }
-         - { option: "runinterval", value: "1m" }
-     - name: Enable pupper service
-       service:
-         name: puppet
-         state: started
-         enabled: true
-     - name: restart puppet
-       become: true
-       service:
-         name: puppet
-         state: restarted
- - hosts: mcs
-   become: true
-   tasks:
-     - name: Install puppet agent
-       yum:
-         pkg: puppet-agent
-         state: present
-         update_cache: yes
-     - name: Set puppet agent conf
-       ini_file:
-         path: /etc/puppetlabs/puppet/puppet.conf
-         section: agent
-         option: "{{ item.option }}"
-         value: "{{ item.value }}"
-       with_items:
-         - { option: "server", value: "master" }
-         - { option: "runinterval", value: "1m" }
-     - name: Enable pupper service
        service:
          name: puppet
          state: started
