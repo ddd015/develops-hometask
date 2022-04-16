@@ -31,8 +31,6 @@
       template:
         src: /vagrant/roles/jenkins/templates/jenkins.service
         dest: /lib/systemd/system/jenkins.service
-      notify:
-      - Restart SystemD
     - name: Delete file inintialAdminPassword  
       file:
         path: /var/lib/jenkins/secrets/initialAdminPassword

@@ -1,12 +1,11 @@
 ---
    - name: Stop Jenkins
-     service:
+     systemd:
        name: jenkins
        state: stopped
+       daemon_reload: true
    - name: Start Jenkins
-     service:
+     systemd:
        name: jenkins
        state: started
-   - name: Restart SystemD
-     systemd:
-       daemon_reload: yes
+       daemon_reload: true
