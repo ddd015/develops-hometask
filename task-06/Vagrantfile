@@ -42,10 +42,13 @@ Vagrant.configure("2") do |config|
   jenkins.vm.hostname = "jenkins"
   jenkins.vm.provider("virtualbox") { |vb| vb.memory = 1024 }
   jenkins.vm.provision :shell, inline: <<-SHELL
-    curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-    echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+#  curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
+#  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+#echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+#  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+#  /etc/apt/sources.list.d/jenkins.list > /dev/null
     apt-get update
-    apt-get install -y build-essential default-jre ansible sshpass git
+    apt-get install -y ansible sshpass git python3-pip mc
     #sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
     SHELL
   jenkins.vm.provision "ansible_local" do |ansible|

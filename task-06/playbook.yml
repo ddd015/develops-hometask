@@ -2,5 +2,8 @@
  - hosts: jenkins
    become: true
    roles:
-     - jenkins
+     - inst_jenkins
+#     - conf_jenkins
+#     - conf_job_jenk
+
      

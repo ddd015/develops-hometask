@@ -1,0 +1,29 @@
+---
+    - name: Install plugins for jenkins
+      jenkins_plugin:
+        name: "{{ item }}"
+        url_username: "{{ jenkins_user }}"
+        url_password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
+        with_dependencies: yes
+      with_items:
+       - git
+       - github
+       - goland
+       - Pipeline    
+    - name: Create a jenkins job using basic authentication
+      jenkins_job:
+        config: "{{ lookup('file', 'templates/dobuild.xml') }}"
+        name: dobiuild
+        password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
+        user: "{{ jenkins_user }}"
+        state: present
+    - name: Create a jenkins build using basic authentication
+      community.general.jenkins_build:
+        name: "dobiuild"
+        build_number: 1.01
+        state: present
+        user: "{{ jenkins_user }}"
+        password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
