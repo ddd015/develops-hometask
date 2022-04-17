@@ -49,13 +49,17 @@ Vagrant.configure("2") do |config|
 #  /etc/apt/sources.list.d/jenkins.list > /dev/null
     apt-get update
     apt-get install -y ansible sshpass git python3-pip mc
+    sudo mkdir -p /etc/ansible/roles/
+    sudo touch /etc/ansible/ansible.cfg
     #sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
-    sed -i "s/#roles_path/roles_path/" /etc/ansible/ansible.cfg
+    #sed -i "s/#roles_path/roles_path/" /etc/ansible/ansible.cfg
+    echo "roles_path = /etc/ansible/roles" >> /etc/ansible/ansible.cfg
     SHELL
   jenkins.vm.provision "ansible_local" do |ansible|
     ansible.galaxy_role_file = "requirements.yml"
     ansible.galaxy_roles_path = "/etc/ansible/roles"
-    ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} --force"
+    #ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} --force"
+    ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
     ansible.playbook = "/vagrant/playbook.yml"
     ansible.inventory_path = "hosts"
     ansible.limit = "all"
