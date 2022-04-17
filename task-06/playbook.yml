@@ -2,8 +2,8 @@
  - hosts: jenkins
    become: true
    roles:
-     - inst_jenkins
-#     - conf_jenkins
-#     - conf_job_jenk
+     - role: '/vagrant/roles/inst_jenkins'
+     - role: '/vagrant/roles/conf_jenkins'
+     - role: '/vagrant/roles/conf_job_jenk'
 
      

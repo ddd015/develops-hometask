@@ -2,23 +2,34 @@
     - name: Install bottle python package
       pip:
         name: ['python-jenkins','lxml']
-      notify:
-       - Stop_Jenkins
+#      notify:
+#      - Stop_Jenkins
+    - name: Stop_Jenkins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: stopped
     - name: Creat user folder
       file:
         path: /var/lib/jenkins/users/admin_17653030755750021651
         state: directory
     - name: Change jenkins.service
-        lineinfile:
-          path: /lib/systemd/system/jenkins.service
-          regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"'
-          line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+      lineinfile:
+        path: /lib/systemd/system/jenkins.service
+        regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"'
+        line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+#      notify: 
+#      - SystemD_Reload  
+    - name: SystemD_Reload
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      become: true
     - name: Copy xml files to jenkis
       template:
         src: "{{ item.f }}"
         dest: "{{ item.d }}"
       with_items:
          - {f: '/vagrant/roles/conf_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
+         - {f: '/vagrant/roles/conf_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}
          - {f: '/vagrant/roles/conf_jenkins/files/users/users.xml', d: '/var/lib/jenkins/users/'}
          - {f: '/vagrant/roles/conf_jenkins/files/users/admin_17653030755750021651/config.xml', d: '/var/lib/jenkins/users/admin_17653030755750021651/'}
     - name: Jenkins Skip startUp for MI change conf
@@ -29,8 +40,12 @@
       file:
         path: /var/lib/jenkins/secrets/initialAdminPassword
         state: absent
-      notify:
-      - Start_Jenkins
+#      notify:
+#      - Start_Jenkins
+    - name: Start_Jenkins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: started
     - name: Wait for Jenkins to start up
       uri:
         url: "{{ jenkins_url }}"

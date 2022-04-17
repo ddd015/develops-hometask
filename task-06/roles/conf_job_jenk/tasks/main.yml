@@ -1,6 +1,6 @@
 ---
     - name: Install plugins for jenkins
-      jenkins_plugin:
+      community.general.jenkins_plugin:
         name: "{{ item }}"
         url_username: "{{ jenkins_user }}"
         url_password: "{{ jenkins_passw }}"
@@ -9,10 +9,14 @@
       with_items:
        - git
        - github
-       - goland
-       - Pipeline    
+       - golang
+       - Pipeline
+    - name: Restart_Jenkins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: restarted
     - name: Create a jenkins job using basic authentication
-      jenkins_job:
+      community.general.jenkins_job:
         config: "{{ lookup('file', 'templates/dobuild.xml') }}"
         name: dobiuild
         password: "{{ jenkins_passw }}"
@@ -22,7 +26,7 @@
     - name: Create a jenkins build using basic authentication
       community.general.jenkins_build:
         name: "dobiuild"
-        build_number: 1.01
+        build_number: 1
         state: present
         user: "{{ jenkins_user }}"
         password: "{{ jenkins_passw }}"
