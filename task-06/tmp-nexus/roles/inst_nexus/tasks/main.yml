@@ -48,13 +48,15 @@
       git:
         repo: 'https://github.com/ansible-ThoTeam/nexus3-oss.git'
         dest: '/srv/checkout'
-    - name: Install bottle python package
-      pip:
-        name: ['ansible']
     - name: Install jmespath
       pip:
         requirements: /srv/checkout/requirements.txt
-        virtualenv: /my_app/venv
+    - name: Install build-essential default-jre
+      apt:
+        name: ['build-essential','default-jre']
+        state: latest
+        update_cache: yes
+      
 
 
   

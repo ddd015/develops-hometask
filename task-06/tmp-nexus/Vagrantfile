@@ -9,25 +9,6 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant", disable: false 
     config.vm.box = "generic/debian11"
   
-  
-#    config.vm.define "production" do |production|
-#    production.vm.network "private_network", ip: "192.168.56.13"
-#    production.vm.hostname = "production"
-#    production.vm.provision :shell, inline: <<-SHELL
-#      apt-get update
-#      apt-get install -y git build-essential default-jre
-#    SHELL
-#  end
-  
-#    config.vm.define "stading" do |stading|
-#    stading.vm.network "private_network", ip: "192.168.56.12"
-#    stading.vm.hostname = "stading"
-#    stading.vm.provision :shell, inline: <<-SHELL
-#      apt-get update
-#      apt-get install -y git build-essential default-jre
-#    SHELL
-#  end
-  
     config.vm.define "nexus" do |nexus|
     nexus.vm.network "private_network", ip: "192.168.56.11"
     nexus.vm.hostname = "nexus"
@@ -35,36 +16,9 @@ Vagrant.configure("2") do |config|
       timedatectl set-timezone Europe/Minsk
       apt-get update
       apt-get install -y sshpass python3-pip mc
-      #sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
+      echo "y" | pip install ansible
+      sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
 #      apt-get install -y git build-essential default-jre
     SHELL
     end
-  
-#    config.vm.define "jenkins" do |jenkins|
-#    jenkins.vm.network "private_network", ip: "192.168.56.10"
-#    jenkins.vm.hostname = "jenkins"
-#    jenkins.vm.provider("virtualbox") { |vb| vb.memory = 1024 }
-#    jenkins.vm.provision :shell, inline: <<-SHELL
-#      apt-get update
-#      apt-get install -y ansible sshpass git python3-pip mc
-      #sudo mkdir -p /etc/ansible/roles/
-      #sudo cp -f /vagrant/ansible.cfg /etc/ansible/ansible.cfg
-      #sudo chmod 0644 /etc/ansible/ansible.cfg
-#      sudo ansible-galaxy collection install community.general
-#      sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
-      #sed -i "s/#roles_path/roles_path/" /etc/ansible/ansible.cfg
-  
-#      SHELL
-      #jenkins.vm.provision "ansible_local" do |ansible|
-       #ansible.galaxy_role_file = "requirements.yml"
-       #ansible.galaxy_roles_path = "/etc/ansible/roles"
-       #ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} --force"
-       #ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
-       #ansible.playbook = "/vagrant/playbook.yml"
-       #ansible.inventory_path = "hosts"
-       #ansible.limit = "all"
-       #ansible.become = true
-       #end 
-#    end
-
 end
