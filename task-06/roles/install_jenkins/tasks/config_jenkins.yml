@@ -13,10 +13,9 @@
         path: /var/lib/jenkins/users/admin_17653030755750021651
         state: directory
     - name: Change jenkins.service
-      lineinfile:
-        path: /lib/systemd/system/jenkins.service
-        regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"'
-        line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+      template:
+        src: /vagrant/roles/install_jenkins/templates/jenkins.service
+        dest: /lib/systemd/system/jenkins.service
 #      notify: 
 #      - SystemD_Reload  
     - name: SystemD_Reload
@@ -28,13 +27,13 @@
         src: "{{ item.f }}"
         dest: "{{ item.d }}"
       with_items:
-         - {f: '/vagrant/roles/conf_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
-         - {f: '/vagrant/roles/conf_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}
-         - {f: '/vagrant/roles/conf_jenkins/files/users/users.xml', d: '/var/lib/jenkins/users/'}
-         - {f: '/vagrant/roles/conf_jenkins/files/users/admin_17653030755750021651/config.xml', d: '/var/lib/jenkins/users/admin_17653030755750021651/'}
+         - {f: '/vagrant/roles/install_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
+         - {f: '/vagrant/roles/install_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}
+         - {f: '/vagrant/roles/install_jenkins/files/users/users.xml', d: '/var/lib/jenkins/users/'}
+         - {f: '/vagrant/roles/install_jenkins/files/users/admin_17653030755750021651/config.xml', d: '/var/lib/jenkins/users/admin_17653030755750021651/'}
     - name: Jenkins Skip startUp for MI change conf
       template:
-        src: /vagrant/roles/conf_jenkins/templates/jenkins
+        src: /vagrant/roles/install_jenkins/templates/jenkins
         dest: /etc/default/jenkins
     - name: Delete file inintialAdminPassword  
       file:
