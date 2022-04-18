@@ -1,0 +1,12 @@
+---
+# - hosts: jenkins
+#   become: true
+#   roles:
+#     - role: '/vagrant/roles/inst_jenkins'
+#     - role: '/vagrant/roles/conf_jenkins'
+#     - role: '/vagrant/roles/conf_job_jenk'
+ - hosts: nexus
+   become: true
+   roles:
+     - role: '/vagrant/roles/inst_nexus'
+     
