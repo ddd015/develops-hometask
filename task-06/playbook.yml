@@ -3,6 +3,8 @@
    become: true
    roles:
      - role: '/vagrant/roles/install_jenkins'
+   
+
 
 
 

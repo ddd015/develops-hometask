@@ -42,30 +42,19 @@ Vagrant.configure("2") do |config|
   jenkins.vm.hostname = "jenkins"
   jenkins.vm.provider("virtualbox") { |vb| vb.memory = 1024 }
   jenkins.vm.provision :shell, inline: <<-SHELL
-#  curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
-#  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-#echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-#  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-#  /etc/apt/sources.list.d/jenkins.list > /dev/null
     apt-get update
-    apt-get install -y ansible sshpass git python3-pip mc
-    #sudo mkdir -p /etc/ansible/roles/
-    #sudo cp -f /vagrant/ansible.cfg /etc/ansible/ansible.cfg
-    #sudo chmod 0644 /etc/ansible/ansible.cfg
-    sudo ansible-galaxy collection install community.general
-    sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
-    #sed -i "s/#roles_path/roles_path/" /etc/ansible/ansible.cfg
+    apt-get install -y sshpass git python3-pip mc
 
     SHELL
-  #jenkins.vm.provision "ansible_local" do |ansible|
-    #ansible.galaxy_role_file = "requirements.yml"
-    #ansible.galaxy_roles_path = "/etc/ansible/roles"
-    #ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} --force"
-    #ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
-    #ansible.playbook = "/vagrant/playbook.yml"
-    #ansible.inventory_path = "hosts"
-    #ansible.limit = "all"
-    #ansible.become = true
-    #end 
+  jenkins.vm.provision "ansible_local" do |ansible|
+    ansible.galaxy_role_file = "requirements.yml"
+    #ansible.galaxy_roles_path = "~/.ansible"
+    ansible.galaxy_command = "ansible-galaxy collection install -r%{role_file} --force"
+    #ansible.galaxy_command = "ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
+    ansible.playbook = "/vagrant/playbook.yml"
+    ansible.inventory_path = "hosts"
+    ansible.limit = "all"
+    ansible.become = true
+    end 
  end
 end

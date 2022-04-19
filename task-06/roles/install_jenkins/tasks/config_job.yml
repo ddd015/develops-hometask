@@ -1,6 +1,4 @@
 ---
-#    - name: ansible-galaxy collection install community.general
-#      shell: ansible-galaxy collection install community.general
     - name: Install plugins for jenkins
       community.general.jenkins_plugin:
         name: "{{ item }}"
