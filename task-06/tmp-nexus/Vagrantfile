@@ -15,10 +15,9 @@ Vagrant.configure("2") do |config|
     nexus.vm.provision :shell, inline: <<-SHELL
       timedatectl set-timezone Europe/Minsk
       apt-get update
-      apt-get install -y sshpass python3-pip mc
-      echo "y" | pip install ansible
+      apt-get install -y ansible sshpass python3-pip mc
+#      echo "y" | pip install ansible
       sudo ansible-playbook /vagrant/playbook.yml -i /vagrant/hosts
-#      apt-get install -y git build-essential default-jre
     SHELL
     end
 end

@@ -2,5 +2,6 @@
  - hosts: nexus
    become: true
    roles:
-     - role: '/vagrant/roles/inst_nexus'
-     
+     - role: '/vagrant/roles/install_nexus'
+
+
