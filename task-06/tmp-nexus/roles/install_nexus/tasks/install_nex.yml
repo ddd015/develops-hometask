@@ -1,35 +1,32 @@
 ---
    - name: Install build-essential default-jre
      apt:
-       name: ['build-essential','default-jre']
+       name: ['build-essential']
        state: latest
        update_cache: yes 
-   #- name: Download Java 1.8 for Nexus
-   #  get_url:
-   #    url: https://sdlc-esd.oracle.com/ESD6/JSCDL/jdk/8u331-b09/165374ff4ea84ef0bbd821706e29b123/jre-8u331-linux-x64.tar.gz?GroupName=JSC&FilePath=/ESD6/JSCDL/jdk/8u331-b09/165374ff4ea84ef0bbd821706e29b123/jre-8u331-linux-x64.tar.gz&BHost=javadl.sun.com&File=jre-8u331-linux-x64.tar.gz&AuthParam=1650461331_95121817f63a48d37c25f6a4217c8805&ext=.gz
-   #    dest: /home/vagrant/
-   - name: Unpack Java for Nexus
-     unarchive:
-       src: /vagrant/jre-8u331-linux-x64.zip
-       dest: /home/vagrant/
+
    - name: Download Nexus
      get_url:
        url: https://download.sonatype.com/nexus/3/nexus-3.38.1-01-unix.tar.gz
        checksum: md5:d3d2e8ebef0816f412b66fe7a374f923
        dest: /opt/nexus3.tar.gz
+
    - name: Create workdir
      file:
        path: /opt/nexus
        state: directory
+
    - name: Unpack Nexus
      unarchive:
        src: /opt/nexus3.tar.gz
        dest: /opt/nexus/
+
    - name: Find last release
      find:
        file_type: directory
        patterns: 'nexus*'
        path: /opt/nexus
+
      register: nexus_path
    - name: Create nexus symlink
      file:
@@ -37,24 +34,21 @@
        state: link
        src: "{{ nexus_path.files[0]['path'] }}"
      when: nexus_path.matched > 0
+
    - name: Copy environment file
-     template:
+     copy:
        src: '/vagrant/roles/install_nexus/files/nexus-server'
        dest: /etc/default/nexus-server
+
    - name: Copy systemd file
-     template:
+     copy:
        src: /vagrant/roles/install_nexus/files/nexus.service
        dest: /etc/systemd/system/nexus.service
+
    - name: SystemD_Reload
      ansible.builtin.systemd:
        daemon_reload: yes
-   - name: Change bin file nexus
-     lineinfile:
-       path: /opt/nexus/nexus/bin/nexus
-       regexp: '^# INSTALL4J_JAVA_HOME_OVERRIDE='
-       insertbefore: '^INSTALL4J_JAVA_HOME_OVERRIDE='
-       line: 'INSTALL4J_JAVA_HOME_OVERRIDE=/home/vagrant/jre1.8.0_331'
-       state: present
+
    - name: Start Nexus service
      systemd:
        name: nexus

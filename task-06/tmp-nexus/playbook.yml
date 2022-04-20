@@ -1,6 +1,7 @@
 ---
  - hosts: nexus
    become: true
+#   pre_tasks:
    roles:
      - role: '/vagrant/roles/install_nexus'
 
