@@ -1,22 +1,16 @@
 ---
-#  - name: Install build-essential default-jre
-#    apt:
-#      name: ['build-essential','default-jre']
-#      state: latest
-#      update_cache: yes 
-#  - name: Install java
-#    apt:
-#      name: openjdk-8-jdk
-#      state: latest
-#      update_cache: yes 
-
-   - name: Download Java for Nexus
-     get_url:
-       url: https://sdlc-esd.oracle.com/ESD6/JSCDL/jdk/8u321-b07/df5ad55fdd604472a86a45a217032c7d/jre-8u321-linux-x64.tar.gz?GroupName=JSC&FilePath=/ESD6/JSCDL/jdk/8u321-b07/df5ad55fdd604472a86a45a217032c7d/jre-8u321-linux-x64.tar.gz&BHost=javadl.sun.com&File=jre-8u321-linux-x64.tar.gz&AuthParam=1650378394_f940f366ffcd3fb5cf6265e6cf98d1b1&ext=.gz
-       dest: /home/vagrant/
+   - name: Install build-essential default-jre
+     apt:
+       name: ['build-essential','default-jre']
+       state: latest
+       update_cache: yes 
+   #- name: Download Java 1.8 for Nexus
+   #  get_url:
+   #    url: https://sdlc-esd.oracle.com/ESD6/JSCDL/jdk/8u331-b09/165374ff4ea84ef0bbd821706e29b123/jre-8u331-linux-x64.tar.gz?GroupName=JSC&FilePath=/ESD6/JSCDL/jdk/8u331-b09/165374ff4ea84ef0bbd821706e29b123/jre-8u331-linux-x64.tar.gz&BHost=javadl.sun.com&File=jre-8u331-linux-x64.tar.gz&AuthParam=1650461331_95121817f63a48d37c25f6a4217c8805&ext=.gz
+   #    dest: /home/vagrant/
    - name: Unpack Java for Nexus
      unarchive:
-       src: /home/vagrant/jre-8u321-linux-x64.tar
+       src: /vagrant/jre-8u331-linux-x64.zip
        dest: /home/vagrant/
    - name: Download Nexus
      get_url:
@@ -54,17 +48,13 @@
    - name: SystemD_Reload
      ansible.builtin.systemd:
        daemon_reload: yes
-    - name: Change bin file nexus
-       lineinfile:
-         path: /opt/nexus/nexus/bin/nexus
-         regexp: '^# INSTALL4J_JAVA_HOME_OVERRIDE='
-         insertbefore: '^INSTALL4J_JAVA_HOME_OVERRIDE='
-         line: 'INSTALL4J_JAVA_HOME_OVERRIDE=/home/vagrant/jre1.8.0_321'
-         state: present
-
    - name: Change bin file nexus
      lineinfile:
-       regexp: '^'
+       path: /opt/nexus/nexus/bin/nexus
+       regexp: '^# INSTALL4J_JAVA_HOME_OVERRIDE='
+       insertbefore: '^INSTALL4J_JAVA_HOME_OVERRIDE='
+       line: 'INSTALL4J_JAVA_HOME_OVERRIDE=/home/vagrant/jre1.8.0_331'
+       state: present
    - name: Start Nexus service
      systemd:
        name: nexus
