@@ -28,20 +28,22 @@ Vagrant.configure("2") do |config|
 #  SHELL
 #end
 
-#  config.vm.define "nexus" do |nexus|
-#  nexus.vm.network "private_network", ip: "192.168.56.11"
-#  nexus.vm.hostname = "nexus"
-#  nexus.vm.provision :shell, inline: <<-SHELL
-#    apt-get update
-#    apt-get install -y git build-essential default-jre
-#  SHELL
-#end
+   config.vm.define "nexus" do |nexus|
+   nexus.vm.network "private_network", ip: "192.168.56.11"
+   nexus.vm.hostname = "nexus"
+   nexus.vm.provision :shell, inline: <<-SHELL
+     timedatectl set-timezone Europe/Minsk
+     apt-get update
+     apt-get install -y sshpass python3-pip mc 
+   SHELL
+   end
 
   config.vm.define "jenkins" do |jenkins|
   jenkins.vm.network "private_network", ip: "192.168.56.10"
   jenkins.vm.hostname = "jenkins"
   jenkins.vm.provider("virtualbox") { |vb| vb.memory = 1024 }
   jenkins.vm.provision :shell, inline: <<-SHELL
+    timedatectl set-timezone Europe/Minsk
     apt-get update
     apt-get install -y sshpass git python3-pip mc
 
