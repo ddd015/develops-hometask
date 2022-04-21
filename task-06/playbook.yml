@@ -31,6 +31,7 @@
           - nx-search-read
           - all-repos-read
           - company-project-deploy
+          - nx-repository-view-*-*-*
         roles: []
     nexus_local_users:
       - username: jenkins # used as key to update
@@ -48,7 +49,7 @@
     nexus_config_raw: true
     nexus_repos_raw_hosted:
     - name: world-cloud-build
-      version_policy: release
+      version_policy: snapshot
       write_policy: allow  # one of "allow", "allow_once" or "deny"
      
    roles:

@@ -50,6 +50,23 @@ md5sum artifacts/word-cloud-generator
 ls -l artifacts/</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
+    <sp.sd.nexusartifactuploader.NexusArtifactUploader plugin="nexus-artifact-uploader@2.13">
+      <nexusVersion>nexus3</nexusVersion>
+      <protocol>http</protocol>
+      <nexusUrl>192.168.56.11:8081</nexusUrl>
+      <groupId>1</groupId>
+      <version>1.$BUILD_NUMBER</version>
+      <repository>world-cloud-build</repository>
+      <artifacts>
+        <sp.sd.nexusartifactuploader.Artifact>
+          <artifactId>world-cloud-generator</artifactId>
+          <type>gz</type>
+          <classifier></classifier>
+          <file>artifacts/word-cloud-generator</file>
+        </sp.sd.nexusartifactuploader.Artifact>
+      </artifacts>
+      <credentialsId>nx_uploader</credentialsId>
+    </sp.sd.nexusartifactuploader.NexusArtifactUploader>
   </builders>
   <publishers/>
   <buildWrappers>
