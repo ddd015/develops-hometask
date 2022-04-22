@@ -65,7 +65,7 @@ ls -l artifacts/</command>
           <file>artifacts/word-cloud-generator</file>
         </sp.sd.nexusartifactuploader.Artifact>
       </artifacts>
-      <credentialsId>nx_uploader</credentialsId>
+      <credentialsId>jenkins</credentialsId>
     </sp.sd.nexusartifactuploader.NexusArtifactUploader>
   </builders>
   <publishers/>

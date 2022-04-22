@@ -44,13 +44,14 @@
     nexus_blobstores:
       - name: company-artifacts
         path: /var/nexus/blobs/company-artifacts
-  
+      
     # Change nexus_config_raw to true for create raw repository
     nexus_config_raw: true
     nexus_repos_raw_hosted:
     - name: world-cloud-build
-      version_policy: snapshot
+      version_policy: mixed
       write_policy: allow  # one of "allow", "allow_once" or "deny"
+      strict_content_validation: false
      
    roles:
      - role: '/vagrant/roles/nexus3-oss'
