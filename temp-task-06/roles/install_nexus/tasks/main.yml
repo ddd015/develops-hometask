@@ -1,0 +1,8 @@
+---
+   - include_tasks: install_open_jdk8.yml
+   - include_tasks: install_nex.yml
+
+      
+
+
+  
