@@ -1,4 +1,0 @@
----
-   - include_tasks: install_jenkins_rep.yml
-   - include_tasks: config_jenkins.yml
-   - include_tasks: config_job.yml

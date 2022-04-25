@@ -9,7 +9,7 @@
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.11.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@4.11.1">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
@@ -47,13 +47,15 @@ sed -i &quot;s/1.DEVELOPMENT/1.$BUILD_NUMBER/g&quot; static/version
 GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v 
 
 md5sum artifacts/word-cloud-generator
-ls -l artifacts/</command>
+ls -l artifacts/
+
+gzip -f ./artifacts/word-cloud-generator</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
     <sp.sd.nexusartifactuploader.NexusArtifactUploader plugin="nexus-artifact-uploader@2.13">
       <nexusVersion>nexus3</nexusVersion>
       <protocol>http</protocol>
-      <nexusUrl>192.168.56.11:8081</nexusUrl>
+      <nexusUrl>192.168.56.20:8081</nexusUrl>
       <groupId>1</groupId>
       <version>1.$BUILD_NUMBER</version>
       <repository>world-cloud-build</repository>
@@ -62,11 +64,36 @@ ls -l artifacts/</command>
           <artifactId>world-cloud-generator</artifactId>
           <type>gz</type>
           <classifier></classifier>
-          <file>artifacts/word-cloud-generator</file>
+          <file>artifacts/word-cloud-generator.gz</file>
         </sp.sd.nexusartifactuploader.Artifact>
       </artifacts>
       <credentialsId>vagrant</credentialsId>
     </sp.sd.nexusartifactuploader.NexusArtifactUploader>
+    <org.jvnet.hudson.plugins.SSHBuilder plugin="ssh@2.6.1">
+      <siteName>vagrant@192.168.56.30:22</siteName>
+      <command>sudo service wordcloud stop
+
+sudo curl -X GET &quot;http://192.168.56.20:8081/repository/word-cloud-build/1/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz
+sudo ls -l /opt/wordcloud
+sudo gunzip -f /opt/wordcloud/word-cloud-generator.gz
+sudo chmod +x /opt/wordcloud/word-cloud-generator
+
+sudo service wordcloud start </command>
+      <execEachLine>false</execEachLine>
+      <hideCommand>false</hideCommand>
+    </org.jvnet.hudson.plugins.SSHBuilder>
+    <hudson.tasks.Shell>
+      <command>res=`curl -s -H &quot;Content-Type: application/json&quot; -d &apos;{&quot;text&quot;:&quot;ths is a really really really important thing this is&quot;}&apos; http://192.168.56.30:8888/version | jq &apos;. | length&apos;`
+if [ &quot;1&quot; != &quot;$res&quot; ]; then
+  exit 99
+fi
+
+res=`curl -s -H &quot;Content-Type: application/json&quot; -d &apos;{&quot;text&quot;:&quot;ths is a really really really important thing this is&quot;}&apos; http://192.168.56.30:8888/api | jq &apos;. | length&apos;`
+if [ &quot;7&quot; != &quot;$res&quot; ]; then
+  exit 99
+fi</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
   </builders>
   <publishers/>
   <buildWrappers>
