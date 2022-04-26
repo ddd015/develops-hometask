@@ -1,22 +1,5 @@
 ---
- - hosts: stading
-   become: true
-   tasks:
-     - name: Create folder
-       file:
-         path: /opt/wordcloud
-         state: directory
-         owner: vagrant
-         group: vagrant
-     - name: Copy service file 
-       copy:  
-         src: /vagrant/wordcloud.service
-         dest:  /etc/systemd/system/wordcloud.service
-     - name: SystemD_Reload
-       ansible.builtin.systemd:
-         daemon_reload: yes 
-
- - hosts: production
+ - hosts: slave
    become: true
    tasks:
      - name: Install jq
@@ -37,6 +20,10 @@
      - name: SystemD_Reload
        ansible.builtin.systemd:
          daemon_reload: yes 
+     - name: Enable Service wordcloud.service
+       ansible.builtin.systemd:
+         name: wordcloud.service
+         enabled: yes
 
  - hosts: nexus
    become: true
