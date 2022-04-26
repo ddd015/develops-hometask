@@ -27,8 +27,7 @@
         src: "{{ item.f }}"
         dest: "{{ item.d }}"
       with_items:
-#         - {f: '/vagrant/roles/install_jenkins/files/secret.key', d: '/var/lib/jenkins/'}
-#         - {f: '/vagrant/roles/install_jenkins/files/master.key', d: '/var/lib/jenkins/secrets/'}
+         - {f: '/vagrant/roles/install_jenkins/files/org.jvnet.hudson.plugins.SSHBuildWrapper.xml', d: '/var/lib/jenkins/'}
          - {f: '/vagrant/roles/install_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
          - {f: '/vagrant/roles/install_jenkins/files/credentials.xml', d: '/var/lib/jenkins/'}
          - {f: '/vagrant/roles/install_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}

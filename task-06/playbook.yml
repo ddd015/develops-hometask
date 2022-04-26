@@ -24,6 +24,19 @@
          name: ['jq']
          state: latest
          update_cache: yes
+     - name: Create folder
+       file:
+         path: /opt/wordcloud
+         state: directory
+         owner: vagrant
+         group: vagrant
+     - name: Copy service file 
+       copy:  
+         src: /vagrant/wordcloud.service
+         dest:  /etc/systemd/system/wordcloud.service
+     - name: SystemD_Reload
+       ansible.builtin.systemd:
+         daemon_reload: yes 
 
  - hosts: nexus
    become: true
