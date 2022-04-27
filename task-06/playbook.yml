@@ -1,4 +1,30 @@
 ---
+ - hosts: slave
+   become: true
+   tasks:
+     - name: Install jq
+       apt:
+         name: ['jq']
+         state: latest
+         update_cache: yes
+     - name: Create folder
+       file:
+         path: /opt/wordcloud
+         state: directory
+         owner: vagrant
+         group: vagrant
+     - name: Copy service file 
+       copy:  
+         src: /vagrant/wordcloud.service
+         dest:  /etc/systemd/system/wordcloud.service
+     - name: SystemD_Reload
+       ansible.builtin.systemd:
+         daemon_reload: yes 
+     - name: Enable Service wordcloud.service
+       ansible.builtin.systemd:
+         name: wordcloud.service
+         enabled: yes
+
  - hosts: nexus
    become: true
    pre_tasks:
@@ -7,7 +33,7 @@
    vars:
     nexus_timezone: 'Europa/Minsk'
     nexus_admin_password: "admin123"
-    nexus_anonymous_access: true
+    nexus_anonymous_access: false
     httpd_setup_enable: false
     nexus_delete_default_repos: true
     nexus_privileges:
@@ -17,30 +43,44 @@
         actions:
           - read
           - browse
-      - name: company-project-deploy
-        description: 'Deployments to company-project'
-        repository: company-project
-        actions:
-          - add
-          - edit
+#      - name: company-project-deploy
+#        description: 'Deployments to company-project'
+#        repository: company-project
+#        actions:
+#          - add
+#          - edit
     nexus_roles:
-      - id: Developpers # maps to the LDAP group
-        name: developers
-        description: All developers
+      - id: uploader # maps to the LDAP group
+        name: uploader
+        description: All uploader
         privileges:
-          - nx-search-read
-          - all-repos-read
-          - company-project-deploy
+          - nx-repository-view-raw-world-cloud-build-add
+          - nx-repository-view-raw-world-cloud-build-browse
+          - nx-repository-view-raw-world-cloud-build-edit
+#          - nx-repository-view-*-*-*
+        roles: []
+      - id: downloader # maps to the LDAP group
+        name: downloader
+        description: All downloader
+        privileges:
           - nx-repository-view-*-*-*
         roles: []
+
     nexus_local_users:
-      - username: vagrant # used as key to update
-        first_name: vagrant
+      - username: uploader 
+        first_name: uploader
         last_name: CI
         email: support@company.com
         password: "123"
         roles:
-          - Developpers # role ID here
+          - uploader 
+      - username: downloader 
+        first_name: downloader
+        last_name: CI
+        email: support@company.com
+        password: "123"
+        roles:
+          - downloader 
 #    nexus_blobstores:
 #      - name: company-artifacts
 #        path: /var/nexus/blobs/company-artifacts
@@ -61,6 +101,8 @@
    become: true
    roles:
      - role: '/vagrant/roles/install_jenkins' 
+
+   
 
    
 

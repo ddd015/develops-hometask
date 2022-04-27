@@ -1,0 +1,17 @@
+version: '3'
+services:
+  wcg0:
+    build:
+      context: . #file path Doskerfile.multi
+      dockerfile: Doskerfile.multi
+    image: wcg-3
+    ports:
+    - 8888:8888
+  wcg1:
+    image: wcg-2
+    ports:
+    - 8888:8888
+  wcg2:
+    image: wcg-2
+    - ports:
+    - 8899:8888

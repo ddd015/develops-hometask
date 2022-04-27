@@ -14,6 +14,11 @@
        - golang
        - Pipeline
        - nexus-artifact-uploader
+       - ssh
+       - ssh-agent
+       - ssh-slaves
+       - SSH-Build-Agents
+      ignore_errors: yes
     - name: Restart_Jenkins
       ansible.builtin.systemd:
         name: jenkins
