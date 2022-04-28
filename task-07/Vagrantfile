@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+#  config.ssh.username = "vagrant"
+#  config.ssh.password = "vagrant"
+#  config.ssh.insert_key = false 
+  config.vm.synced_folder ".", "/vagrant", disable: false 
+  config.vm.box = "generic/debian11"
+
+
+  config.vm.define "production" do |production|
+  production.vm.network "private_network", ip: "192.168.56.40"
+  production.vm.hostname = "production"
+  production.vm.provision :shell, inline: <<-SHELL
+    apt-get update
+    apt-get install -y sshpass git build-essential
+  SHELL
+end
+
+  config.vm.define "stading" do |stading|
+  stading.vm.network "private_network", ip: "192.168.56.30"
+  stading.vm.hostname = "stading"
+  stading.vm.provision :shell, inline: <<-SHELL
+    apt-get update
+    apt-get install -y sshpass git build-essential default-jre
+  SHELL
+end
+
+   config.vm.define "nexus" do |nexus|
+   nexus.vm.network "private_network", ip: "192.168.56.20"
+   nexus.vm.hostname = "nexus"
+   nexus.vm.provision :shell, inline: <<-SHELL
+     timedatectl set-timezone Europe/Minsk
+     apt-get update
+     apt-get install -y sshpass python3-pip mc 
+   SHELL
+   end
+
+   config.vm.define "jenkins" do |jenkins|
+   jenkins.vm.network "private_network", ip: "192.168.56.10"
+   jenkins.vm.hostname = "jenkins"
+   jenkins.vm.provision :shell, inline: <<-SHELL
+     timedatectl set-timezone Europe/Minsk
+     apt-get update
+     apt-get install -y sshpass git python3-pip mc
+  
+     SHELL
+  jenkins.vm.provision "ansible_local" do |ansible|
+    ansible.galaxy_role_file = "requirements.yml"
+    ansible.galaxy_roles_path = "~/.ansible"
+    ansible.galaxy_command = "ansible-galaxy collection install -r%{role_file} --force"
+    #ansible.galaxy_command = "ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
+    ansible.playbook = "/vagrant/playbook.yml"
+    ansible.inventory_path = "hosts"
+    ansible.limit = "all"
+    ansible.become = true
+    end 
+ end
+end

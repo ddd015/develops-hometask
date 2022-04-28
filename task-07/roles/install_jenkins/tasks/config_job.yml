@@ -1,0 +1,41 @@
+---
+    - name: Install ansible-galaxy collection install community.general
+      shell: ansible-galaxy collection install community.general
+    - name: Install plugins for jenkins
+      community.general.jenkins_plugin:
+        name: "{{ item }}"
+        url_username: "{{ jenkins_user }}"
+        url_password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
+        with_dependencies: yes
+      with_items:
+       - git
+       - github
+       - golang
+       - Pipeline
+       - nexus-artifact-uploader
+       - ssh
+       - ssh-agent
+       - ssh-slaves
+       - SSH-Build-Agents
+      ignore_errors: yes
+    - name: Restart_Jenkins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: restarted
+    - name: Create a jenkins job using basic authentication
+      community.general.jenkins_job:
+        config: "{{ lookup('file', 'templates/dobuild.xml') }}"
+        name: dobuild
+        password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
+        user: "{{ jenkins_user }}"
+        state: present
+    - name: Create a jenkins build using basic authentication
+      community.general.jenkins_build:
+        name: "dobuild"
+        build_number: 1
+        state: present
+        user: "{{ jenkins_user }}"
+        password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
