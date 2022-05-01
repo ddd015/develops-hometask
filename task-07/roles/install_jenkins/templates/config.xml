@@ -1,0 +1,129 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1180.v04c4e75dce43">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2077.vc78ec45162f1"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2077.vc78ec45162f1">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>git_branch</name>
+          <defaultValue>master</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2689.v434009a_31b_f1">
+    <script>pipeline {
+    agent any
+    
+    tools {
+        go &apos;Go 1.16&apos;
+    }
+    
+    stages {
+        stage (&quot;Test compile&quot;) {
+            steps (&quot;Download and test&quot;) {
+                sh &apos;&apos;&apos;
+                cd /tmp
+                wget -O go.tar.gz https://go.dev/dl/go1.16.linux-amd64.tar.gz
+                tar xfvz go.tar.gz
+                export PATH=$PATH:/tmp/go/bin
+                git clone &apos;https://github.com/Fenikks/word-cloud-generator.git&apos;
+                cd word-cloud-generator
+                make lint &amp;&amp; make test
+                if [[ $? -ne 0 ]]
+                    then
+                        echo &quot;Test error&quot;
+                        exit 1
+                fi
+                &apos;&apos;&apos;
+            }
+        }
+        stage (&quot;Get git&quot;) {
+            steps{
+                git &apos;https://github.com/Fenikks/word-cloud-generator.git&apos;
+            }
+        }
+        stage (&quot;Build&quot;){
+            steps{
+                sh &apos;&apos;&apos;export GOPATH=$WORKSPACE/go
+                export PATH=&quot;$PATH:$(go env GOPATH)/bin&quot;               
+                go get github.com/tools/godep
+                go get github.com/smartystreets/goconvey
+                go get github.com/GeertJohan/go.rice/rice  
+                go get github.com/wickett/word-cloud-generator/wordyapi
+                go get github.com/gorilla/mux
+                sed -i &quot;s/1.DEVELOPMENT/1.$BUILD_NUMBER/g&quot; static/version
+                GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v 
+                md5sum artifacts/word-cloud-generator
+                ls -l artifacts/
+                gzip -f ./artifacts/word-cloud-generator&apos;&apos;&apos;
+            }
+        }
+        stage (&quot;Upload to nexus&quot;) {
+            steps {
+                nexusArtifactUploader (artifacts: [[artifactId: &apos;world-cloud-generator&apos;, 
+                classifier: &apos;&apos;, file: &apos;artifacts/word-cloud-generator.gz&apos;, 
+                type: &apos;gz&apos;]], credentialsId: &apos;uploader&apos;, groupId: &quot;$git_branch&quot;, 
+                nexusUrl: &apos;192.168.56.20:8081&apos;, nexusVersion: &apos;nexus3&apos;, protocol: &apos;http&apos;, 
+                repository: &apos;world-cloud-build&apos;, version: &apos;1.$BUILD_NUMBER&apos;)
+            }
+        }   
+        stage (&quot;Paralleled test&quot;) {
+            parallel {
+                stage (&quot;Test and install on stading&quot;) {
+                    steps {
+                        sh &apos;&apos;&apos;
+                              sshpass -p &apos;vagrant&apos; ssh vagrant@192.168.56.30 -o StrictHostKeyChecking=no &quot; cd /opt/wordcloud/
+                              sudo curl -u downloader:123 -X GET &quot;http://192.168.56.20:8081/repository/world-cloud-build/$git_branch/world-cloud-generator/1.$BUILD_NUMBER/world-cloud-generator-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz
+                              if [[ $? -ne 0 ]];
+                                then
+                                    echo &quot;File not found&quot;
+                                    exit 1
+                                else
+                                  sudo service wordcloud stop
+                                  sudo gunzip -f /opt/wordcloud/word-cloud-generator.gz
+                                  sudo chmod +x /opt/wordcloud/word-cloud-generator
+                                  sudo service wordcloud start
+                                fi&quot;
+                           &apos;&apos;&apos;
+                    }
+                }
+                stage (&quot;Test and install on prodaction&quot;) {
+                    steps {
+                        sh &apos;&apos;&apos;
+                              sshpass -p &apos;vagrant&apos; ssh vagrant@192.168.56.40 -o StrictHostKeyChecking=no &quot; cd /opt/wordcloud/
+                              sudo curl -u downloader:123 -X GET &quot;http://192.168.56.20:8081/repository/world-cloud-build/$git_branch/world-cloud-generator/1.$BUILD_NUMBER/world-cloud-generator-1.$BUILD_NUMBER.gz&quot; -o /opt/wordcloud/word-cloud-generator.gz
+                              if [[ $? -ne 0 ]];
+                                then
+                                    echo &quot;File not found&quot;
+                                    exit 1
+                                else
+                                  sudo service wordcloud stop
+                                  sudo gunzip -f /opt/wordcloud/word-cloud-generator.gz
+                                  sudo chmod +x /opt/wordcloud/word-cloud-generator
+                                  sudo service wordcloud start
+                                fi&quot;
+                           &apos;&apos;&apos;
+                    }
+                }
+            }
+        }
+        
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
