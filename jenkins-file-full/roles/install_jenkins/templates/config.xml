@@ -34,14 +34,8 @@
         stage (&quot;Test compile&quot;) {
             steps (&quot;Download and test&quot;) {
                 sh &apos;&apos;&apos;
-                cd /tmp
-                wget -O go.tar.gz https://go.dev/dl/go1.16.linux-amd64.tar.gz
-                tar xfvz go.tar.gz
-                export PATH=$PATH:/tmp/go/bin
-                git clone &apos;https://github.com/Fenikks/word-cloud-generator.git&apos;
-                cd word-cloud-generator
                 make lint &amp;&amp; make test
-                if [[ $? -ne 0 ]]
+                if [ $? -ne 0 ];
                     then
                         echo &quot;Test error&quot;
                         exit 1
