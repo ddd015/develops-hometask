@@ -27,6 +27,7 @@
     - name: Create a jenkins job using basic authentication
       community.general.jenkins_job:
         name: GoPipeline
+        config: "{{ lookup('file', 'templates/config.xml') }}"
         password: "{{ jenkins_passw }}"
         url: "{{ jenkins_url }}"
         user: "{{ jenkins_user }}"
