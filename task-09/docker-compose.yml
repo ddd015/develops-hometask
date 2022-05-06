@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  nexus:
+    build:
+      context: ./nexus/ #file path Doskerfile.multi
+      dockerfile: Dockerfile
+    image: nexus
+    volumes:
+    - ./nexus/roles-nexus:/usr/share/ansible/roles
+    - ./nexus/vagrant:/vagrant
+    ports:
+    - 8081:8081
+    networks:
+      - bridge
+
+networks:
+  bridge:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.10.10.0/24
+         gateway: 172.10.10.1
+         aux_addresses:
+          nexus: 172.10.10.2
+          
+
+#  wcg1:
+#    image: wcg-2
+#    ports:
+#    - 8888:8888
+#  wcg2:
+#    image: wcg-2
+#    - ports:
+#    - 8899:8888

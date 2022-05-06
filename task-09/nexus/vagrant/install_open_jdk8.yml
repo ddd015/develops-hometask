@@ -1,0 +1,13 @@
+---
+   - name: add key java 8 for drbian 11
+     apt_key:
+       url: https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+   - apt_repository:
+       repo: deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ bullseye main
+       state: present
+       update_cache: true
+
+   - name: Install OpenJDK 8
+     apt: 
+       name: adoptopenjdk-8-hotspot-jre
+       state: present
