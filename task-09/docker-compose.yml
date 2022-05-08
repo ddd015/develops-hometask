@@ -1,15 +1,51 @@
 version: '3'
 
 services:
-  nexus:
+#  nexus:
+#    build:
+#      context: ./nexus/ #file path Doskerfile.multi
+#      dockerfile: Dockerfile
+#    image: nexus
+##    volumes:
+##    - ./nexus/roles-nexus:/usr/share/ansible/roles
+#    ports:
+#    - 8081:8081
+#   networks:
+#   - nginx-net
+
+  jenkins:
     build:
-      context: ./nexus/ #file path Doskerfile.multi
+      context: ./jenkins/ #file path Doskerfile.multi
       dockerfile: Dockerfile
-    image: nexus
+    image: jenkins
 #    volumes:
 #    - ./nexus/roles-nexus:/usr/share/ansible/roles
     ports:
-    - 8081:8081
+    - 8080:8080
+#    networks:
+#    - nginx-net
+
+#  nginx:
+#    image: inginx
+#    ports:
+#    - "8080:8080"
+#    - "8081:8081"
+#    networks:
+#    - nginx-net
+#    depends_on:
+#    - nexus
+#    - jenkins
+#    volumes:
+#    - ./nginx/nginx.conf:etc/nginx/nginx.conf
+#
+#networks:
+#  nginx-net: {}
+
+
+
+
+
+
 
 #    networks:
 #      - bridge
@@ -25,11 +61,3 @@ services:
 #          nexus: 172.10.10.2
           
 
-#  wcg1:
-#    image: wcg-2
-#    ports:
-#    - 8888:8888
-#  wcg2:
-#    image: wcg-2
-#    - ports:
-#    - 8899:8888

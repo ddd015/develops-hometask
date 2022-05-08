@@ -1,0 +1,15 @@
+---
+ - hosts: localhost
+   tasks:
+   become: true
+   roles:
+     - role: '/usr/share/ansible/roles/install_jenkins' 
+
+   
+
+   
+
+
+
+
+     
