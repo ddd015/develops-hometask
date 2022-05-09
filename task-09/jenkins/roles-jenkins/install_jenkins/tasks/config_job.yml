@@ -8,9 +8,10 @@
 #    - name: Install plugins for jenkins
 #      community.general.jenkins_plugin:
 #        name: "{{ item }}"
-#        url_username: "{{ jenkins_user }}"
-#        url_password: "{{ jenkins_passw }}"
-#        url: "{{ jenkins_url }}"
+#        url_username: admin
+#        url_password: admin
+#        url: 'http://localhost:8080'
+#        timeout: 500
 #        with_dependencies: yes
 #      with_items:
 #       - git
