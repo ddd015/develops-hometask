@@ -6,6 +6,7 @@ services:
       context: ./nexus/ #file path Doskerfile.multi
       dockerfile: Dockerfile
     image: nexus
+    container_name: nexus
 #    volumes:
 #    - ./nexus/roles-nexus:/usr/share/ansible/roles
     ports:
@@ -18,6 +19,7 @@ services:
       context: ./jenkins/ #file path Doskerfile.multi
       dockerfile: Dockerfile
     image: jenkins
+    container_name: jenkins
 #    volumes:
 #    - ./nexus/roles-nexus:/usr/share/ansible/roles
     ports:
@@ -27,6 +29,7 @@ services:
 
 #  nginx:
 #    image: nginx
+#    container_name: nginx
 #    ports:
 #    - "8080:8080"
 #    - "8081:8081"
