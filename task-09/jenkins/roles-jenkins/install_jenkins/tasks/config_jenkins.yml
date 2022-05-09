@@ -12,6 +12,10 @@
       file:
         path: /var/lib/jenkins/users/admin_17653030755750021651
         state: directory
+    - name: Create job folder
+      file:
+        path: /var/lib/jenkins/jobs/jenkinsfile
+        state: directory
 #    - name: Change jenkins.service
 #      template:
 #        src: /vagrant/roles/install_jenkins/templates/jenkins.service
@@ -27,6 +31,9 @@
         src: "{{ item.f }}"
         dest: "{{ item.d }}"
       with_items:
+         # add job for docker
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/job/config.xml', d: '/var/lib/jenkins/jobs/jenkinsfile/'} 
+         # end add job  
          - {f: '/usr/share/ansible/roles/install_jenkins/files/org.jvnet.hudson.plugins.SSHBuildWrapper.xml', d: '/var/lib/jenkins/'}
          - {f: '/usr/share/ansible/roles/install_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
          - {f: '/usr/share/ansible/roles/install_jenkins/files/credentials.xml', d: '/var/lib/jenkins/'}
@@ -41,6 +48,15 @@
       file:
         path: /var/lib/jenkins/secrets/initialAdminPassword
         state: absent
+    - name: Download plugins archive
+      get_url:
+        url: https://s310vla.storage.yandex.net/rdisk/918a912d590a35c68b21c6983687e36830a8aa067886240ae75fcae372bfc114/6278e688/mSsvri2pez9PEP0mYUMZK-hmtuMuMzlhjU4huMK6D450bekQ1icgG2WrL9gmB_YPvK3NxmCGu6u9ch19L7yQzg==?uid=0&filename=plugins.tar.gz&disposition=attachment&hash=t58PdewTUTo6ZzNIghKloztPDa%2B2AIw05bS%2BmQ68b/ZI5tkWy8rvKMliisbZ8/y4q/J6bpmRyOJonT3VoXnDag%3D%3D&limit=0&content_type=application%2Fx-gzip&owner_uid=164423467&fsize=156517112&hid=333dd7de46f1dd6ceca03627652cf6e8&media_type=compressed&tknv=v2&rtoken=kayMgkaCGxvm&force_default=no&ycrid=na-2768800a8f14dd40daaa5a43e57e58bd-downloader13f&ts=5de914ba0b200&s=8c8245e214e6d5fcb2f1a2cd8b63aaeab442dab8c46b862408359641bfec38ce&pb=U2FsdGVkX1_ndNjboJ6FiyU6-UC_AQ02ipDywhaTNK08DYhF-MtQJtYXy9-DAYYpJT3xMpWKhA-_dJ74R8_L2ITDek63UgQwzKJCVP6pc-A 
+        dest: /usr/share/ansible/roles/plugins.tar.gz
+    - name: Unpack plugins archive
+      ansible.builtin.unarchive:
+        src: /usr/share/ansible/roles/plugins.tar.gz
+        dest: /var/lib/jenkins/
+        keep_newer: yes
 #      notify:
 #      - Start_Jenkins
 #    - name: Start_Jenkins

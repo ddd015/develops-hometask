@@ -1,10 +1,10 @@
 ---
     - name: Install ansible-galaxy collection install community.general
       shell: ansible-galaxy collection install community.general
-    - name: Sleep for 180 seconds and continue with play 
-      wait_for: 
-        timeout: 180 
-      delegate_to: localhost
+#    - name: Sleep for 180 seconds and continue with play 
+#      wait_for: 
+#        timeout: 180 
+#      delegate_to: localhost
 #    - name: Install plugins for jenkins
 #      community.general.jenkins_plugin:
 #        name: "{{ item }}"
@@ -37,8 +37,8 @@
 #        state: restarted
 #    - name: Create a jenkins job using basic authentication
 #      community.general.jenkins_job:
-#        config: "{{ lookup('file', 'templates/dobuild.xml') }}"
-#        name: dobuild
+#        config: "{{ lookup('file', 'templates/config.xml') }}"
+#        name: jenkinsfile
 #        password: "{{ jenkins_passw }}"
 #        url: "{{ jenkins_url }}"
 #        user: "{{ jenkins_user }}"
