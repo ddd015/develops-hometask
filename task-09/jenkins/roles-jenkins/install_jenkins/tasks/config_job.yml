@@ -1,17 +1,16 @@
 ---
     - name: Install ansible-galaxy collection install community.general
       shell: ansible-galaxy collection install community.general
-#    - name: Sleep for 180 seconds and continue with play 
+#    - name: Sleep for 200 seconds and continue with play 
 #      wait_for: 
-#        timeout: 180 
+#        timeout: 200 
 #      delegate_to: localhost
 #    - name: Install plugins for jenkins
 #      community.general.jenkins_plugin:
 #        name: "{{ item }}"
-#        url_username: admin
-#        url_password: admin
-#        url: 'http://localhost:8080'
-#        timeout: 500
+#        url_username: 'admin'
+#        url_password: 'admin'
+#        url: 'http://127.0.0.1:8080'
 #        with_dependencies: yes
 #      with_items:
 #       - git
@@ -21,7 +20,6 @@
 #       - nexus-artifact-uploader
 #       - ssh
 #       - ssh-agent
-#       - ssh-slaves
 #       - ssh-credentials
 #       - SSH-Build-Agents
 #       - ssh-steps
@@ -33,7 +31,7 @@
 #       - pipeline-stage-step
 #      ignore_errors: yes
 #    - name: Restart_Jenkins
-#      ansible.builtin.systemd:
+#      sysvinit:
 #        name: jenkins
 #        state: restarted
 #    - name: Create a jenkins job using basic authentication

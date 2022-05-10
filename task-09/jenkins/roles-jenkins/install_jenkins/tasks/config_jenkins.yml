@@ -2,12 +2,6 @@
     - name: Install bottle python package
       pip:
         name: ['python-jenkins','lxml']
-#      notify:
-#      - Stop_Jenkins
-#    - name: Stop_Jenkins
-#      ansible.builtin.systemd:
-#        name: jenkins
-#        state: stopped
     - name: Creat user folder
       file:
         path: /var/lib/jenkins/users/admin_17653030755750021651
@@ -16,16 +10,6 @@
       file:
         path: /var/lib/jenkins/jobs/jenkinsfile
         state: directory
-#    - name: Change jenkins.service
-#      template:
-#        src: /vagrant/roles/install_jenkins/templates/jenkins.service
-#        dest: /lib/systemd/system/jenkins.service
-#      notify: 
-#      - SystemD_Reload  
-#    - name: SystemD_Reload
-#      ansible.builtin.systemd:
-#        daemon_reload: yes
-#      become: true
     - name: Copy xml files to jenkis
       template:
         src: "{{ item.f }}"
@@ -48,9 +32,14 @@
       file:
         path: /var/lib/jenkins/secrets/initialAdminPassword
         state: absent
+#    - name: Start jenkins
+#      sysvinit:
+#        name: jenkins
+#        state: started
+#        enabled: yes
     - name: Download plugins archive
       get_url:
-        url: ftp://anonymous@86.57.133.186/plugins.tar.gz
+        url: https://getfile.dokpub.com/yandex/get/https://disk.yandex.by/d/bLpsRFajlV5cPQ
         dest: /usr/share/ansible/roles/plugins.tar.gz
     - name: Unpack plugins archive
       ansible.builtin.unarchive:
