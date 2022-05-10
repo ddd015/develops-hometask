@@ -58,10 +58,10 @@ gzip -f ./artifacts/word-cloud-generator</command>
       <nexusUrl>nexus:8081</nexusUrl>
       <groupId>1</groupId>
       <version>1.$BUILD_NUMBER</version>
-      <repository>world-cloud-build</repository>
+      <repository>word-cloud-build</repository>
       <artifacts>
         <sp.sd.nexusartifactuploader.Artifact>
-          <artifactId>world-cloud-generator</artifactId>
+          <artifactId>word-cloud-generator</artifactId>
           <type>gz</type>
           <classifier></classifier>
           <file>artifacts/word-cloud-generator.gz</file>
