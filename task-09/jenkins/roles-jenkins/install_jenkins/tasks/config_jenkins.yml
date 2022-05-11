@@ -6,14 +6,21 @@
       file:
         path: /var/lib/jenkins/users/admin_17653030755750021651
         state: directory
+        owner: jenkins
+        group: jenkins
     - name: Create job folder
       file:
         path: /var/lib/jenkins/jobs/jenkinsfile
         state: directory
+        owner: jenkins
+        group: jenkins
     - name: Copy xml files to jenkis
       template:
         src: "{{ item.f }}"
         dest: "{{ item.d }}"
+        owner: jenkins
+        group: jenkins
+        force: yes
       with_items:
          # add job for docker
          - {f: '/usr/share/ansible/roles/install_jenkins/files/job/config.xml', d: '/var/lib/jenkins/jobs/jenkinsfile/'} 
@@ -24,46 +31,9 @@
          - {f: '/usr/share/ansible/roles/install_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}
          - {f: '/usr/share/ansible/roles/install_jenkins/files/users/users.xml', d: '/var/lib/jenkins/users/'}
          - {f: '/usr/share/ansible/roles/install_jenkins/files/users/admin_17653030755750021651/config.xml', d: '/var/lib/jenkins/users/admin_17653030755750021651/'}
-    - name: Jenkins Skip startUp for MI change conf
-      template:
-        src: /usr/share/ansible/roles/install_jenkins/templates/jenkins
-        dest: /etc/default/jenkins
     - name: Delete file inintialAdminPassword  
       file:
         path: /var/lib/jenkins/secrets/initialAdminPassword
         state: absent
-#    - name: Start jenkins
-#      sysvinit:
-#        name: jenkins
-#        state: started
-#        enabled: yes
-    - name: Download plugins archive
-      get_url:
-        url: https://getfile.dokpub.com/yandex/get/https://disk.yandex.by/d/bLpsRFajlV5cPQ
-        dest: /usr/share/ansible/roles/plugins.tar.gz
-    - name: Unpack plugins archive
-      ansible.builtin.unarchive:
-        src: /usr/share/ansible/roles/plugins.tar.gz
-        dest: /var/lib/jenkins/
-        keep_newer: yes
-#      notify:
-#      - Start_Jenkins
-#    - name: Start_Jenkins
-#      ansible.builtin.systemd:
-#        name: jenkins
-#        state: started
-#    - name: Wait for Jenkins to start up
-#      uri:
-#        url: "{{ jenkins_url }}"
-#        status_code: 200
-#        user: "{{ jenkins_user }}"
-#        password: "{{ jenkins_passw }}"
-#        force_basic_auth: yes
-#        timeout: 5
-#      register: jenkins_service_status
-#      # Keep trying for 5 mins in 5 sec intervals
-#      retries: 10
-#      delay: 5
-#      until: >
-#        'status' in jenkins_service_status and
-#        jenkins_service_status['status'] == 200
+    - name: Start jenkins
+      service: name=jenkins state=started enabled=yes
