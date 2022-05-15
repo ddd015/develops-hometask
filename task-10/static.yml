@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-deployment
+spec:
+  selector:
+    matchLabels:
+      app: static
+  replicas: 3 
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: static
+    spec:
+      containers:
+      - name: static
+        image: ddd015/firstrep:hometask
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          httpGet:
+            path: /
+            port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: static-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30088
+  selector:
+    app: static
+
+
+#  type: NodePort
+#  ports:
+#  - port: 80
+#    targetPort: 80
+#    nodePort: 30088
+#  selector:
+#    app: static
