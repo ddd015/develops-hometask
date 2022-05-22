@@ -1,0 +1,44 @@
+---
+    - name: Install bottle python package
+      pip:
+        name: ['python-jenkins','lxml']
+    - name: Creat user folder
+      file:
+        path: /var/lib/jenkins/users/admin_17653030755750021651
+        state: directory
+        owner: jenkins
+        group: jenkins
+    - name: Create job folder
+      file:
+        path: /var/lib/jenkins/jobs/jenkinsfile
+        state: directory
+        owner: jenkins
+        group: jenkins
+    - name: Copy xml files to jenkis
+      template:
+        src: "{{ item.f }}"
+        dest: "{{ item.d }}"
+        owner: jenkins
+        group: jenkins
+        force: yes
+      with_items:
+         # add job for docker
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/job/config.xml', d: '/var/lib/jenkins/jobs/jenkinsfile/'} 
+         # end add job  
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/org.jvnet.hudson.plugins.SSHBuildWrapper.xml', d: '/var/lib/jenkins/'}
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/config.xml', d: '/var/lib/jenkins/'}
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/credentials.xml', d: '/var/lib/jenkins/'}
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml', d: '/var/lib/jenkins/'}
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/users/users.xml', d: '/var/lib/jenkins/users/'}
+         - {f: '/usr/share/ansible/roles/install_jenkins/files/users/admin_17653030755750021651/config.xml', d: '/var/lib/jenkins/users/admin_17653030755750021651/'}
+    - name: Delete file inintialAdminPassword  
+      file:
+        path: /var/lib/jenkins/secrets/initialAdminPassword
+        state: absent
+    - name: Start jenkins
+      sysvinit: 
+        name: jenkins
+        state: started
+        enabled: yes
+#    - name: Start jenkins
+#      service: name=jenkins state=started enabled=yes

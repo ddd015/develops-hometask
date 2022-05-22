@@ -1,0 +1,25 @@
+---
+    - name: Install build-essential default-jre
+      apt:
+        name: ['build-essential','default-jre']
+        state: latest
+        update_cache: yes
+      become: yes
+    - name: ensure the jenkins apt repository key is installed
+      apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io.key state=present
+    - name: ensure the repository is configured
+      apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+    - name: Install jenkins
+      apt:
+        name: jenkins
+        state: latest
+        update_cache: yes
+      become: yes
+    - name: Disable start wizard 
+      lineinfile: 
+         path: "{{ item.path }}" 
+         state: present 
+         regexp: "{{ item.exp }}" 
+         line: "{{ item.n_ln }}" 
+      with_items: 
+        - { path: "/etc/default/jenkins", exp: '^JAVA_ARGS="-Djava.awt.headless=true"', n_ln: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"' }
