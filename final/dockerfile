@@ -12,13 +12,11 @@ RUN go get github.com/smartystreets/goconvey
 RUN go get github.com/GeertJohan/go.rice/rice  
 RUN go get github.com/wickett/word-cloud-generator/wordyapi
 RUN go get github.com/gorilla/mux
-RUN sed -i "s/1.DEVELOPMENT/1.$BUILD_NUMBER/g" static/version
+RUN sed -i "s/1.DEVELOPMENT/1.$BUILD_NUMBER/g" /go/word-cloud-generator/static/version
+RUN cd ..
 RUN GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v 
-RUN md5sum artifacts/word-cloud-generator
-RUN ls -l artifacts/
-RUN gzip -f ./artifacts/word-cloud-generator
+RUN gzip -f /go/word-cloud-generator/artifacts/word-cloud-generator
 
 EXPOSE 8888
 
-
-CMD /opt/nexus-latest/bin/nexus run
+CMD /go/word-cloud-generator/artifacts/word-cloud-generator 

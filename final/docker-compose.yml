@@ -23,6 +23,7 @@ services:
     container_name: jenkins
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
+    - jenkins_vol:/var/lib/jenkins/workspace/
     ports:
     - 8080:8080
     networks:
@@ -44,24 +45,5 @@ services:
 
 networks:
   nginx-net: {}
-
-
-
-
-
-
-
-#    networks:
-#      - bridge
-
-#networks:
-#  bridge:
-#    driver: bridge
-#    ipam:
-#     config:
-#       - subnet: 172.10.10.0/24
-#         gateway: 172.10.10.1
-#         aux_addresses:
-#          nexus: 172.10.10.2
-          
-
+volumes:
+  jenkins_vol:
