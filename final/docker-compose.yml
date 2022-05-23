@@ -1,18 +1,18 @@
 version: '3.5'
 
 services:
-#  nexus:
-#    build:
-#      context: ./nexus/ #file path Doskerfile.multi
-#      dockerfile: Dockerfile
-#    image: nexus
-#    container_name: nexus
-##    volumes:
-##    - ./nexus/roles-nexus:/usr/share/ansible/roles
-#    ports:
-#    - 8081:8081
-#    networks:
-#    - nginx-net
+  nexus:
+    build:
+      context: ./nexus/ #file path Doskerfile.multi
+      dockerfile: Dockerfile
+    image: nexus
+    container_name: nexus
+#    volumes:
+#    - ./nexus/roles-nexus:/usr/share/ansible/roles
+    ports:
+    - 8081:8081
+    networks:
+    - nginx-net
 
   jenkins:
     build:
