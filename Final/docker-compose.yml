@@ -7,10 +7,7 @@ services:
       dockerfile: Dockerfile
     image: nexus
     container_name: nexus
-    ports:
-    - 8081:8081
-    networks:
-    - nginx-net
+    network_mode: host
 
   jenkins:
     build:
@@ -22,13 +19,8 @@ services:
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - jenkins_vol:/var/lib/jenkins/workspace/
-    ports:
-    - 8080:8080
-    networks:
-    - nginx-net
+    network_mode: host
 
-networks:
-  nginx-net: {}
 volumes:
   jenkins_vol:
 
