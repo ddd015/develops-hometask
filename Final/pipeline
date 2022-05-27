@@ -1,20 +1,10 @@
 pipeline {
     agent any
-    environment {
-        mynet = ' '
-    }
     stages {
-        stage ('Get neywork docker name') {
-           steps {
-              sh '''
-                 mynet=$(docker network ls | grep nginx | cut --delimiter=' ' -f 4)
-              '''
-           }
-        }
         stage ('Test') {
             agent {
                 dockerfile { filename 'dockerfile' 
-                            args '--net final_nginx-net'
+                            args '--network host'
                            }
             }
             steps {
@@ -39,30 +29,39 @@ pipeline {
                 gzip -f ./artifacts/word-cloud-generator
                 cat static/version
                 '''
-                nexusArtifactUploader artifacts: [[artifactId: 'word-cloud-generator', classifier: '', file: 'artifacts/word-cloud-generator.gz', type: 'gz']], credentialsId: 'uploader', groupId: "$git_branch", nexusUrl: 'nexus:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'word-cloud-build', version: '1.$BUILD_NUMBER'
+                nexusArtifactUploader artifacts: [[artifactId: 'word-cloud-generator', classifier: '', file: 'artifacts/word-cloud-generator.gz', type: 'gz']], credentialsId: 'uploader', groupId: "$git_branch", nexusUrl: 'localhost:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'word-cloud-build', version: '1.$BUILD_NUMBER'
             }
         }
         stage('Testing') {
             agent {
                 dockerfile { filename 'alpine/alpinedockerfile' 
-                            args "-d --net final_nginx-net -p 8888:8888"
+                            args "-d --network host -p 8888:8888"
                            }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'downloader', usernameVariable: 'nexus_user', passwordVariable: 'nexus_password')])
                 {
                   sh '''
-                   curl -u ${nexus_user}:${nexus_password} -X GET "http://nexus:8081/repository/word-cloud-build/$git_branch/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz" -o /opt/wordcloud/word-cloud-generator.gz
+                   curl -u ${nexus_user}:${nexus_password} -X GET "http://localhost:8081/repository/word-cloud-build/$git_branch/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz" -o /opt/wordcloud/word-cloud-generator.gz
                    if [[ $? -ne 0 ]];
-                     then
+                   then
                        echo "File not found"
                        exit 1
-                     else
+                   else
                        gunzip -f /opt/wordcloud/word-cloud-generator.gz
                        chmod +x /opt/wordcloud/word-cloud-generator
                        /opt/wordcloud/word-cloud-generator &
-                       sleep 180
+                       sleep 5
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/version | jq '. | length'`
+                       if [[ "1" != "$res" ]]; then 
+                          exit 99
                        fi
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
+                       if [[ "7" != "$res" ]]; then
+                          exit 99
+                       fi
+                       sleep 60
+                   fi
                   '''
                 }
             }
