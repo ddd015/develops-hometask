@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
   dockertest.vm.provision :shell, inline: <<-SHELL
     apt-get update
     apt-get install -y sshpass docker.io docker-compose -y
-    usermod -aG vagrant docker
+    usermod -aG docker vagrant
     cd /vagrant
     sudo docker-compose up --build
     #sudo docker container start nexus
