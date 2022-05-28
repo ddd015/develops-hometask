@@ -1,0 +1,13 @@
+
+plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+
+
+kubectl config view --minify
+
+ terraform fmt переформат кода
+
+terraform init
+
+terraform apply
+
+terraform apply -auto-approve
