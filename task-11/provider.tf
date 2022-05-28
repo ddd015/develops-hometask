@@ -1,17 +1,30 @@
 
 terraform {
+  backend "kubernetes" {
+    secret_suffix = "static"
+    host        = "https://192.168.59.100:8443"
+    config_path = "~/.kube/config"
+    namespace   = "kube-system"
+  }
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "2.11.0"
     }
+    githab = {
+      source  = "integration/github"
+      version = "~> 4.0"
+    }
   }
 }
 
-provider "kubernetes" {
-  host = "https://192.168.49.2:8443"
+provider "github" {
+  token = var.git_token
+}
 
-  client_certificate     = file("/home/vagrant/.minikube/profiles/minikube/client.crt")
-  client_key             = file("/home/vagrant/.minikube/profiles/minikube/client.key")
-  cluster_ca_certificate = file("/home/vagrant/.minikube/ca.crt")
+provider "kubernetes" {
+  host                   = var.host_ip
+  client_certificate     = file(var.cl_crt)
+  client_key             = file(var.cl_key)
+  cluster_ca_certificate = file(var.cl_ca_key)
 }
