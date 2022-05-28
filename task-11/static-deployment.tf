@@ -9,30 +9,30 @@ resource "kubernetes_deployment" "static-deployment" {
     name      = "static-deployment"
     namespace = kubernetes_namespace.static-ns.metadata[0].name
     labels = {
-      App = "static"
+      app = var.app_name
     }
   }
 
   spec {
-    replicas = 3
+    replicas = var.repl_count
     selector {
       match_labels = {
-        App = "static"
+        app = var.app_name
       }
     }
     template {
       metadata {
         labels = {
-          app = "static"
+          app = var.app_name
         }
       }
       spec {
         container {
-          image             = "ddd015/firstrep:hometask"
-          name              = "static"
+          image             = var.image_name
+          name              = var.app_name
           image_pull_policy = "IfNotPresent"
           port {
-            container_port = 80
+            container_port = var.app_port
           }
         }
       }

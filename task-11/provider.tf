@@ -9,9 +9,9 @@ terraform {
 }
 
 provider "kubernetes" {
-  host = "https://localhost:8443"
+  host = "https://192.168.49.2:8443"
 
-  client_certificate     = file("/home/dima/.minikube/profiles/minikube/client.crt")
-  client_key             = file("/home/dima/.minikube/profiles/minikube/client.key")
-  cluster_ca_certificate = file("/home/dima/.minikube/ca.crt")
+  client_certificate     = file("/home/vagrant/.minikube/profiles/minikube/client.crt")
+  client_key             = file("/home/vagrant/.minikube/profiles/minikube/client.key")
+  cluster_ca_certificate = file("/home/vagrant/.minikube/ca.crt")
 }

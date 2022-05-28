@@ -26,7 +26,7 @@ resource "kubernetes_deployment" "wcg-deployment" {
     template {
       metadata {
         labels = {
-          App = "wcg"
+          App = var.app_name
         }
       }
       spec {
