@@ -1,3 +1,0 @@
-node_port = "30988"
-image_name = "wcg-1:latest"
-app_nmae = "wcg"
