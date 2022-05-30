@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "static-ns" {
 resource "kubernetes_deployment" "static-deployment" {
   metadata {
     name      = "static-deployment"
-    namespace = kubernetes_namespace.static-ns.metadata[0].name
+    namespace = "static-ns"
     labels = {
       app = var.app_name
     }
@@ -33,6 +33,22 @@ resource "kubernetes_deployment" "static-deployment" {
           image_pull_policy = "IfNotPresent"
           port {
             container_port = var.app_port
+          }
+          readiness_probe {
+            initial_delay_seconds = 15
+            timeout_seconds = 5
+            http_get {
+              path = "/"
+              port = var.app_port
+            }
+          }
+          liveness_probe {
+            initial_delay_seconds = 10
+            timeout_seconds = 2
+            http_get {
+              path = "/"
+              port = var.app_port
+            }
           }
         }
       }
