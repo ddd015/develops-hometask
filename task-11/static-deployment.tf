@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "static-ns" {
 resource "kubernetes_deployment" "static-deployment" {
   metadata {
     name      = "static-deployment"
-    namespace = "static-ns"
+    namespace = kubernetes_namespace.static-ns.metadata[0].name
     labels = {
       app = var.app_name
     }
