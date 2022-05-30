@@ -2,9 +2,9 @@
 terraform {
   backend "kubernetes" {
     secret_suffix = "static"
-    host        = "https://192.168.59.100:8443"
+#    host        = "https://192.168.59.100:8443"
     config_path = "~/.kube/config"
-    namespace   = "kube-system"
+#    namespace   = "kube-system"
   }
   required_providers {
     kubernetes = {
@@ -12,7 +12,7 @@ terraform {
       version = "2.11.0"
     }
     githab = {
-      source  = "integration/github"
+      source  = "integrations/github"
       version = "~> 4.0"
     }
   }
@@ -23,7 +23,7 @@ provider "github" {
 }
 
 provider "kubernetes" {
-  host                   = var.host_ip
+  host                   = "https://192.168.59.100:8443"
   client_certificate     = file(var.cl_crt)
   client_key             = file(var.cl_key)
   cluster_ca_certificate = file(var.cl_ca_key)

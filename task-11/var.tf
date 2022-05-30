@@ -12,4 +12,4 @@ variable "cl_key" {}
 variable "cl_ca_key" {}
 variable "path_file" {}
 variable "host_ip" {}
-variable "git_token" {}
+

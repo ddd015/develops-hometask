@@ -1,12 +1,12 @@
-resource "github_repository" "terraform-modules" {
+resource "github_repository" "task-11" {
   name       = "develops-hometask"
   auto_init  = true
   visibility = "public"
 }
 
 resource "github_repository_file" "file" {
-  repository          = github_repository.terraform-terraform-modules.name
-  branch              = github_repository.terraform-terraform-modules.branches.0.name
+  repository          = github_repository.task-11.name
+  branch              = github_repository.task-11.branches.0.name
   file                = "service/terraform.tfstate"
   content             = file(var.path_file)
   commit_message      = "Ups, i am write commit"
