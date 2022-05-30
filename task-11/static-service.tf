@@ -1,7 +1,7 @@
 resource "kubernetes_service" "static-srv" {
   metadata {
     name      = "static-service"
-    namespace = kubernetes_deployment.static-deployment.metadata[0].name
+    namespace = "static-ns"
   }
   spec {
     selector = {
