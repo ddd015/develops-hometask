@@ -1,14 +1,15 @@
-resource "github_repository" "task-11" {
-  name       = "develops-hometask"
-  auto_init  = true
-  visibility = "public"
-}
+#resource "github_repository" "teraform" {
+#  name       = "develops-hometask"
+#  auto_init  = true
+#  visibility = "public"
+#}
 
 resource "github_repository_file" "file" {
-  repository          = github_repository.task-11.name
-  branch              = github_repository.task-11.branches.0.name
-  file                = "service/terraform.tfstate"
-  content             = file(var.path_file)
+  count = length(var.files)
+  repository          = var.git_repo_name
+  branch              = "master"
+  file                = "task-11/${element(var.files, count.index)}"
+  content             = file("${var.path}/${element(var.files, count.index)}")
   commit_message      = "Ups, i am write commit"
   commit_author       = "I am"
   commit_email        = "vasya_pupkin@pupkin.com"
