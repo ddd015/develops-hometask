@@ -2,12 +2,6 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-
-#  config.ssh.username = "vagrant"
-#  config.ssh.password = "vagrant"
-#  config.ssh.insert_key = false 
-#  config.vm.network "forwarded_port", guest: 80, host: 8080
-#  config.vm.network "forwarded_port", guest: 81, host: 8081
   config.vm.synced_folder ".", "/vagrant", disable: false 
   config.vm.box = "generic/debian10"
   config.vm.provider "virtualbox" do |vb|
@@ -24,9 +18,6 @@ Vagrant.configure("2") do |config|
     usermod -aG docker vagrant
     cd /vagrant
     sudo docker-compose up --build
-    #sudo docker container start nexus
-    
-    #sudo docker container start jenkins
   SHELL
   end
 end

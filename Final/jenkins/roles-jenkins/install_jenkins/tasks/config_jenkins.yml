@@ -40,5 +40,3 @@
         name: jenkins
         state: started
         enabled: yes
-#    - name: Start jenkins
-#      service: name=jenkins state=started enabled=yes
