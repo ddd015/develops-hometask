@@ -3,7 +3,7 @@ version: '3.5'
 services:
   nexus:
     build:
-      context: ./nexus/ #file path Doskerfile.multi
+      context: ./nexus/ 
       dockerfile: Dockerfile
     image: nexus
     container_name: nexus
@@ -11,7 +11,7 @@ services:
 
   jenkins:
     build:
-      context: ./jenkins/ #file path Doskerfile.multi
+      context: ./jenkins/
       dockerfile: Dockerfile
     image: jenkins
     privileged: true

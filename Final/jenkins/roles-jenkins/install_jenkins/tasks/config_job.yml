@@ -13,7 +13,6 @@
         url: "{{ jenkins_url }}"
         with_dependencies: yes
       with_items:
-#       - git
        - github
        - golang
        - Pipeline
@@ -23,7 +22,6 @@
        - ssh-credentials
        - SSH-Build-Agents
        - ssh-steps
-#       - workflow-aggregator
        - workflow-durable-task-step
        - pipeline-utility-steps
        - pipeline-stage-view
@@ -34,19 +32,3 @@
        - docker-workflow
        - docker-build-step
       ignore_errors: yes
-#    - name: Create a jenkins job using basic authentication
-#      community.general.jenkins_job:
-#        config: "{{ lookup('file', 'templates/config.xml') }}"
-#        name: jenkinsfile
-#        password: "{{ jenkins_passw }}"
-#        url: "{{ jenkins_url }}"
-#        user: "{{ jenkins_user }}"
-#        state: present
-#    - name: Create a jenkins build using basic authentication
-#      community.general.jenkins_build:
-#        name: "dobuild"
-#        build_number: 1
-#        state: present
-#        user: "{{ jenkins_user }}"
-#        password: "{{ jenkins_passw }}"
-#        url: "{{ jenkins_url }}"
